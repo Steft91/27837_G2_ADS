@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+actor "Usuario (ESPE)" as Usuario
+actor "Personal Técnico" as Tecnico
+actor "Servicio de Autenticación" as Auth
+
+rectangle "Módulo de Préstamos" {
+Usuario -- (Solicitar préstamo de proyector [RF-02])
+(Solicitar préstamo de proyector [RF-02]) .> (Validar usuario) : <<include>>
+(Solicitar préstamo de proyector [RF-02]) .> (Comprobar disponibilidad / Asignar) : <<include>>
+(Solicitar préstamo de proyector [RF-02]) .> (Notificar usuario) : <<include>>
+(Solicitar préstamo de proyector [RF-02]) .> (Solicitar documentos adicionales) : <<extend>>
+(Solicitar préstamo de proyector [RF-02]) .> (Aplicar sanción / Bloquear) : <<extend>>
+Tecnico -- (Entregar/Recibir proyector)
+Auth -- (Validar usuario)
+}
+@enduml
+
