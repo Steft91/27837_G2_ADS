@@ -24,14 +24,12 @@ public class EstudianteRepository {
     }
 
     public Estudiante buscarPorId(int id) {
-        Estudiante estudianteEncontrado = null;
         for (Estudiante estudiante : listaEstudiantes) {
             if (estudiante.getId() == id) {
-                estudianteEncontrado = estudiante;
-                break;
+                return estudiante;
             }
         }
-        return estudianteEncontrado;
+        return null;
     }
 
     public Estudiante editar(int id, Estudiante estudianteEditado) {
