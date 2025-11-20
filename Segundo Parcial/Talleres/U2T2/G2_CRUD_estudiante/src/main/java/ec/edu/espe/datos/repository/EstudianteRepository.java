@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class EstudianteRepository {
 
-    ArrayList<Estudiante> listaEstudiantes = new ArrayList<Estudiante>();
+    private ArrayList<Estudiante> listaEstudiantes = new ArrayList<>();
 
     public EstudianteRepository() {
     }
