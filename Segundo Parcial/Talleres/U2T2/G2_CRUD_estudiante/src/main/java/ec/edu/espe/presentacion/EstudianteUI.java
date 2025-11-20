@@ -2,14 +2,20 @@ package main.java.ec.edu.espe.presentacion;
 
 import main.java.ec.edu.espe.datos.model.Estudiante;
 import main.java.ec.edu.espe.logica_negocio.EstudianteService;
+import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
 
 
 public class EstudianteUI extends javax.swing.JFrame {
     
     EstudianteService servicio;
+    DefaultTableModel modeloTabla;
     
     public EstudianteUI() {
         initComponents();
+        servicio = new EstudianteService();
+        configurarTabla();
+        cargarDatosTabla();
     }
 
     @SuppressWarnings("unchecked")
@@ -89,12 +95,22 @@ public class EstudianteUI extends javax.swing.JFrame {
         eliminarbtn.setText("Eliminar");
         eliminarbtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         eliminarbtn.setName("eliminarbtn"); // NOI18N
+        eliminarbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eliminarbtnActionPerformed(evt);
+            }
+        });
 
         actualizarbtn.setBackground(new java.awt.Color(255, 255, 102));
         actualizarbtn.setForeground(new java.awt.Color(51, 51, 51));
         actualizarbtn.setText("Actualizar");
         actualizarbtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
         actualizarbtn.setName("actualizarbtn"); // NOI18N
+        actualizarbtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                actualizarbtnActionPerformed(evt);
+            }
+        });
 
         txtEdad.setBackground(new java.awt.Color(255, 255, 255));
         txtEdad.setForeground(new java.awt.Color(102, 102, 102));
@@ -208,26 +224,120 @@ public class EstudianteUI extends javax.swing.JFrame {
     // Para el botón guardar
     private void guardarbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarbtnActionPerformed
         try {
-        String id = txtId.getText();
-        String nombre = txtNombre.getText();
-        int edad = Integer.parseInt(txtEdad.getText());
+            String id = txtId.getText().trim();
+            String nombre = txtNombre.getText().trim();
+            int edad = Integer.parseInt(txtEdad.getText().trim());
 
-        Estudiante nuevoEstudiante = new Estudiante(id, nombre, edad);
+            Estudiante nuevoEstudiante = new Estudiante(id, nombre, edad);
+            String resultado = servicio.crearEstudiante(nuevoEstudiante);
 
-        String resultado = servicio.crearEstudiante(nuevoEstudiante);
+            javax.swing.JOptionPane.showMessageDialog(this, resultado);
+            
+            if(resultado.contains("éxito") || resultado.contains("exitosamente")) {
+                limpiarCampos();
+                cargarDatosTabla();
+            }
 
-        javax.swing.JOptionPane.showMessageDialog(this, resultado);
-        
-        if(resultado.contains("exito")) {
-            txtId.setText("");
-            txtNombre.setText("");
-            txtEdad.setText("");
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Por favor ingrese un número válido en Edad.");
         }
-
-    } catch (NumberFormatException e) {
-        javax.swing.JOptionPane.showMessageDialog(this, "Por favor ingrese números válidos en ID y Edad.");
-    }
     }//GEN-LAST:event_guardarbtnActionPerformed
+    
+    private void actualizarbtnActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            String id = txtId.getText().trim();
+            String nombre = txtNombre.getText().trim();
+            int edad = Integer.parseInt(txtEdad.getText().trim());
+            
+            if (id.isEmpty()) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un estudiante de la tabla para actualizar.");
+                return;
+            }
+
+            Estudiante estudianteActualizado = new Estudiante(id, nombre, edad);
+            Estudiante resultado = servicio.editarEstudiante(id, estudianteActualizado);
+
+            if (resultado != null) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Estudiante actualizado exitosamente.");
+                limpiarCampos();
+                cargarDatosTabla();
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Error al actualizar el estudiante.");
+            }
+
+        } catch (NumberFormatException e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Por favor ingrese un número válido en Edad.");
+        }
+    }
+    
+    private void eliminarbtnActionPerformed(java.awt.event.ActionEvent evt) {
+        String id = txtId.getText().trim();
+        
+        if (id.isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un estudiante de la tabla para eliminar.");
+            return;
+        }
+        
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this, 
+            "¿Está seguro de eliminar al estudiante con ID " + id + "?", 
+            "Confirmar eliminación", 
+            javax.swing.JOptionPane.YES_NO_OPTION);
+        
+        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            String resultado = servicio.eliminarEstudiante(id);
+            javax.swing.JOptionPane.showMessageDialog(this, resultado);
+            
+            if (resultado.contains("éxito") || resultado.contains("exitosamente") || resultado.contains("eliminado")) {
+                limpiarCampos();
+                cargarDatosTabla();
+            }
+        }
+    }
+    
+    private void configurarTabla() {
+        modeloTabla = new DefaultTableModel(
+            new Object[][] {},
+            new String[] {"ID", "Nombre", "Edad"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        
+        jTable1.setModel(modeloTabla);
+        
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                int filaSeleccionada = jTable1.getSelectedRow();
+                if (filaSeleccionada != -1) {
+                    txtId.setText(modeloTabla.getValueAt(filaSeleccionada, 0).toString());
+                    txtNombre.setText(modeloTabla.getValueAt(filaSeleccionada, 1).toString());
+                    txtEdad.setText(modeloTabla.getValueAt(filaSeleccionada, 2).toString());
+                }
+            }
+        });
+    }
+    
+    private void cargarDatosTabla() {
+        modeloTabla.setRowCount(0);
+        ArrayList<Estudiante> estudiantes = servicio.listarEstudiantes();
+        
+        for (Estudiante est : estudiantes) {
+            modeloTabla.addRow(new Object[]{
+                est.getId(),
+                est.getNombre(),
+                est.getEdad()
+            });
+        }
+    }
+    
+    private void limpiarCampos() {
+        txtId.setText("");
+        txtNombre.setText("");
+        txtEdad.setText("");
+        jTable1.clearSelection();
+    }
 
 
     public static void main(String args[]) {
