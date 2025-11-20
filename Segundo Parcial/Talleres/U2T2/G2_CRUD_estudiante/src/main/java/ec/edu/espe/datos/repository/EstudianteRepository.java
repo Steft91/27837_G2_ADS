@@ -23,18 +23,18 @@ public class EstudianteRepository {
         return listaEstudiantes;
     }
 
-    public Estudiante buscarPorId(int id) {
+    public Estudiante buscarPorId(String id) {
         for (Estudiante estudiante : listaEstudiantes) {
-            if (estudiante.getId() == id) {
+            if (estudiante.getId().equals(id)) {
                 return estudiante;
             }
         }
         return null;
     }
 
-    public Estudiante editar(int id, Estudiante estudianteEditado) {
+    public Estudiante editar(String id, Estudiante estudianteEditado) {
         for (int i = 0; i < listaEstudiantes.size(); i++) {
-            if (listaEstudiantes.get(i).getId() == id) {
+            if (listaEstudiantes.get(i).getId().equals(id)) {
                 listaEstudiantes.set(i, estudianteEditado);
                 return estudianteEditado;
             }
@@ -42,9 +42,9 @@ public class EstudianteRepository {
         return null;
     }
 
-    public String eliminar(int id) {
+    public String eliminar(String id) {
         try {
-            listaEstudiantes.removeIf(estudiante -> estudiante.getId() == id);
+            listaEstudiantes.removeIf(estudiante -> estudiante.getId().equals(id));
         } catch (Exception e) {
             return "Hubo un error al eliminar un estudiante: " + e.toString();
         }
