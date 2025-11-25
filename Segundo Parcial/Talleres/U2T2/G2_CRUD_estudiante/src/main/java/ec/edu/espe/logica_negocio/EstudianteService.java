@@ -17,7 +17,7 @@ public class EstudianteService {
     private EstudianteRepository repo;
     
     public EstudianteService() {
-        this.repo = new EstudianteRepository();
+        repo = EstudianteRepository.getInstance();
     }
 
     //Create
