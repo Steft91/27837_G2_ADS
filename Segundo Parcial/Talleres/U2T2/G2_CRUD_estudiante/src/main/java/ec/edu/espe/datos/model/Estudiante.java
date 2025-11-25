@@ -1,22 +1,22 @@
 package main.java.ec.edu.espe.datos.model;
 
 public class Estudiante {
-    private String Id;
+    private String id;
     private String nombre;
     private int edad;
     
-    public Estudiante(String Id, String nombre, int edad) {
-        this.Id = Id;
+    public Estudiante(String id, String nombre, int edad) {
+        this.id = id;
         this.nombre = nombre;
         this.edad = edad;
     } 
 
     public String getId() {
-        return Id;
+        return id;
     }
 
-    public void setId(String Id) {
-        this.Id = Id;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getNombre() {

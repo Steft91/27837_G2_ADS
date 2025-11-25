@@ -14,9 +14,154 @@ public class EstudianteUI extends javax.swing.JFrame {
     public EstudianteUI() {
         initComponents();
         servicio = new EstudianteService();
+        aplicarEstiloCambridge();
         configurarTabla();
         cargarDatosTabla();
+
+        setPlaceholder(txtId, "Ej: L00123556");
+        setPlaceholder(txtNombre, "Ej: Kevin Hernández");
+        setPlaceholder(txtEdad, "Ej: 20");
+
+        guardarbtn.setFocusPainted(false);
+        actualizarbtn.setFocusPainted(false);
+        eliminarbtn.setFocusPainted(false);
+
+        guardarbtn.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+        actualizarbtn.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+        eliminarbtn.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
+
+        guardarbtn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 150, 0)));
+        actualizarbtn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 150, 0)));
+        eliminarbtn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(150, 0, 0)));
+
+
+        txtId.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            txtId.getBorder(),
+            javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+        txtNombre.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            txtNombre.getBorder(),
+            javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
+        txtEdad.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            txtEdad.getBorder(),
+            javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)));
+
     }
+
+    private void aplicarEstiloCambridge() {
+
+        // Fondo principal Cambridge Blue
+        this.getContentPane().setBackground(new java.awt.Color(127, 156, 150)); // #7F9C96
+
+        // Panel tipo "card"
+        jPanel2.setBackground(new java.awt.Color(249, 249, 249)); 
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(77, 124, 138))); // #4D7C8A
+
+        // Labels — Azul Yale
+        java.awt.Color labelColor = new java.awt.Color(27, 64, 121); // #1B4079
+        jLabel1.setForeground(labelColor);
+        jLabel2.setForeground(labelColor);
+        jLabel3.setForeground(labelColor);
+        jLabel4.setForeground(labelColor);
+
+        // TextFields
+        estilizarTextFieldCambridge(txtId);
+        estilizarTextFieldCambridge(txtNombre);
+        estilizarTextFieldCambridge(txtEdad);
+
+        // Botones estilo paleta
+        estilizarBotonGuardar(guardarbtn);
+        estilizarBotonActualizar(actualizarbtn);
+        estilizarBotonEliminar(eliminarbtn);
+
+        // Panel principal
+        jPanel1.setBackground(new java.awt.Color(127, 156, 150)); // #7F9C96
+    }
+
+    private void estilizarTextFieldCambridge(javax.swing.JTextField txt) {
+        txt.setBackground(new java.awt.Color(255, 255, 255));
+        txt.setForeground(new java.awt.Color(33, 33, 33));
+        txt.setCaretColor(new java.awt.Color(33, 33, 33));
+
+        txt.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            javax.swing.BorderFactory.createLineBorder(new java.awt.Color(77, 124, 138), 2), // #4D7C8A
+            javax.swing.BorderFactory.createEmptyBorder(5, 8, 5, 8)
+        ));
+    }
+
+    private void estilizarBotonGuardar(javax.swing.JButton btn) {
+        btn.setBackground(new java.awt.Color(143, 173, 136)); // #8FAD88
+        btn.setForeground(new java.awt.Color(27, 64, 121));   // Texto Yale Blue
+        btn.setFocusPainted(false);
+        btn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(77, 124, 138)));
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new java.awt.Color(130, 160, 123));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new java.awt.Color(143, 173, 136));
+            }
+        });
+    }
+
+    private void estilizarBotonActualizar(javax.swing.JButton btn) {
+        btn.setBackground(new java.awt.Color(203, 223, 144)); // #CBDF90
+        btn.setForeground(new java.awt.Color(27, 64, 121));  
+        btn.setFocusPainted(false);
+        btn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(143, 173, 136)));
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new java.awt.Color(190, 210, 130));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new java.awt.Color(203, 223, 144));
+            }
+        });
+    }
+
+    private void estilizarBotonEliminar(javax.swing.JButton btn) {
+        btn.setBackground(new java.awt.Color(77, 124, 138)); // #4D7C8A
+        btn.setForeground(new java.awt.Color(255, 255, 255));
+        btn.setFocusPainted(false);
+        btn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(27, 64, 121)));
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new java.awt.Color(65, 110, 125));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new java.awt.Color(77, 124, 138));
+            }
+        });
+    }
+
+
+    private void setPlaceholder(javax.swing.JTextField field, String placeholder) {
+    field.setForeground(new java.awt.Color(150, 150, 150));
+    field.setText(placeholder);
+
+    field.addFocusListener(new java.awt.event.FocusAdapter() {
+        @Override
+        public void focusGained(java.awt.event.FocusEvent evt) {
+            if (field.getText().equals(placeholder)) {
+                field.setText("");
+                field.setForeground(new java.awt.Color(0, 0, 0));
+            }
+        }
+
+        @Override
+        public void focusLost(java.awt.event.FocusEvent evt) {
+            if (field.getText().isEmpty()) {
+                field.setForeground(new java.awt.Color(150, 150, 150));
+                field.setText(placeholder);
+            }
+        }
+    });
+}
+
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -304,6 +449,39 @@ public class EstudianteUI extends javax.swing.JFrame {
                 return false;
             }
         };
+
+        // Header Mindaro
+        jTable1.getTableHeader().setOpaque(true);
+        jTable1.getTableHeader().setBackground(new java.awt.Color(203, 223, 144)); // #CBDF90
+        jTable1.getTableHeader().setForeground(new java.awt.Color(27, 64, 121));    // #1B4079
+        jTable1.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+
+        // Fondo fila tipo Cambridge
+        jTable1.setBackground(new java.awt.Color(242, 244, 243)); // #F2F4F3
+        jTable1.setForeground(new java.awt.Color(27, 64, 121));
+        jTable1.setGridColor(new java.awt.Color(200, 200, 200));
+
+        jTable1.setSelectionBackground(new java.awt.Color(143, 173, 136)); // Cambridge green
+        jTable1.setSelectionForeground(new java.awt.Color(255, 255, 255));
+        jTable1.setRowHeight(26);
+
+
+        // CABECERA
+        jTable1.getTableHeader().setOpaque(false);
+        jTable1.getTableHeader().setBackground(new java.awt.Color(255, 204, 204)); 
+        jTable1.getTableHeader().setForeground(new java.awt.Color(50, 50, 50));
+        jTable1.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 14));
+
+        // CUERPO DE LA TABLA
+        jTable1.setRowHeight(28);
+        jTable1.setBackground(new java.awt.Color(240, 240, 240));
+        jTable1.setGridColor(new java.awt.Color(200, 200, 200));
+        jTable1.setSelectionBackground(new java.awt.Color(255, 153, 153));
+        jTable1.setSelectionForeground(new java.awt.Color(0, 0, 0));
+
+        // Ancho automático
+        jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+
         
         jTable1.setModel(modeloTabla);
         
