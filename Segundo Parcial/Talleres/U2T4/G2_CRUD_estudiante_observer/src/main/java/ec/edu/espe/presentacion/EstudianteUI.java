@@ -166,7 +166,6 @@ public class EstudianteUI extends javax.swing.JFrame implements RepositoryObserv
 }
 
 
-    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -221,7 +220,7 @@ public class EstudianteUI extends javax.swing.JFrame implements RepositoryObserv
         guardarbtn.setBackground(new java.awt.Color(102, 255, 102));
         guardarbtn.setForeground(new java.awt.Color(51, 51, 51));
         guardarbtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        guardarbtn.setLabel("Guardar");
+        guardarbtn.setText("Guardar");
         guardarbtn.setName("guardarbtn"); // NOI18N
         guardarbtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
