@@ -4,9 +4,11 @@ import main.java.ec.edu.espe.datos.model.Estudiante;
 import main.java.ec.edu.espe.logica_negocio.EstudianteService;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import main.java.ec.edu.espe.datos.repository.EstudianteRepository;
+import main.java.ec.edu.espe.datos.repository.RepositoryObserver;
 
 
-public class EstudianteUI extends javax.swing.JFrame {
+public class EstudianteUI extends javax.swing.JFrame implements RepositoryObserver {
     
     EstudianteService servicio;
     DefaultTableModel modeloTabla;
@@ -17,6 +19,8 @@ public class EstudianteUI extends javax.swing.JFrame {
         aplicarEstiloCambridge();
         configurarTabla();
         cargarDatosTabla();
+        
+        EstudianteRepository.getInstance().addObserver(this);
 
         setPlaceholder(txtId, "Ej: L00123556");
         setPlaceholder(txtNombre, "Ej: Kevin Hernández");
@@ -46,7 +50,6 @@ public class EstudianteUI extends javax.swing.JFrame {
         txtEdad.setBorder(javax.swing.BorderFactory.createCompoundBorder(
             txtEdad.getBorder(),
             javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-
     }
 
     private void aplicarEstiloCambridge() {
@@ -366,6 +369,12 @@ public class EstudianteUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // Implementamos los métodos que vienen de RepositoryObserver
+    @Override
+    public void onDataChanged() {
+        cargarDatosTabla();
+    }
+    
     // Para el botón guardar
     private void guardarbtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarbtnActionPerformed
         try {
@@ -380,7 +389,6 @@ public class EstudianteUI extends javax.swing.JFrame {
             
             if(resultado.contains("éxito") || resultado.contains("exitosamente")) {
                 limpiarCampos();
-                cargarDatosTabla();
             }
 
         } catch (NumberFormatException e) {
@@ -405,7 +413,6 @@ public class EstudianteUI extends javax.swing.JFrame {
             if (resultado != null) {
                 javax.swing.JOptionPane.showMessageDialog(this, "Estudiante actualizado exitosamente.");
                 limpiarCampos();
-                cargarDatosTabla();
             } else {
                 javax.swing.JOptionPane.showMessageDialog(this, "Error al actualizar el estudiante.");
             }
@@ -434,7 +441,6 @@ public class EstudianteUI extends javax.swing.JFrame {
             
             if (resultado.contains("éxito") || resultado.contains("exitosamente") || resultado.contains("eliminado")) {
                 limpiarCampos();
-                cargarDatosTabla();
             }
         }
     }
@@ -542,4 +548,5 @@ public class EstudianteUI extends javax.swing.JFrame {
     private javax.swing.JTextField txtId;
     private javax.swing.JTextField txtNombre;
     // End of variables declaration//GEN-END:variables
+
 }

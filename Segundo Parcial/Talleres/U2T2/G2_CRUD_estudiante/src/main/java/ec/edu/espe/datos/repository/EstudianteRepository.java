@@ -12,6 +12,11 @@ public class EstudianteRepository {
     // Lista donde se almacenarán todos los estudiantes en memoria
     private ArrayList<Estudiante> listaEstudiantes = new ArrayList<>();
     
+    /*
+        Lista donde se almacenarán todos los observadores *Patrón de diseño comportamental: Observer*
+    */
+    private ArrayList<RepositoryObserver> observers = new ArrayList<>();
+    
     // Constructor PRIVADO para evitar que se creen objetos desde fuera
     // Con esto obligamos a que solo se use getInstance()
     private EstudianteRepository() {
@@ -29,10 +34,34 @@ public class EstudianteRepository {
         // Se devuelve la misma instancia siempre
         return instance;
     }
+    
+    /*
+        Método para agregar un observador a la lista de observadores
+    */
+    public void addObserver(RepositoryObserver observer) {
+        observers.add(observer);
+    }
+    
+    /*
+        Método para eliminar un observador a la lista de observadores
+    */
+    public void removeObserver(RepositoryObserver observer) {
+        observers.remove(observer);
+    }
+    
+    /*
+        Método para notificar a todos los observadores de un cambio
+    */
+    private void notificarSuscriptores() {
+        for (RepositoryObserver observer : observers) {
+            observer.onDataChanged();
+        }
+    }
 
     public String agregar(Estudiante estudiante) {
         try {
             listaEstudiantes.add(estudiante);
+            notificarSuscriptores();
         } catch (Exception e) {
             return "Hubo un error al insertar un estudiante: " + e.toString();
         }
@@ -56,6 +85,7 @@ public class EstudianteRepository {
         for (int i = 0; i < listaEstudiantes.size(); i++) {
             if (listaEstudiantes.get(i).getId().equals(id)) {
                 listaEstudiantes.set(i, estudianteEditado);
+                notificarSuscriptores();
                 return estudianteEditado;
             }
         }
@@ -65,6 +95,7 @@ public class EstudianteRepository {
     public String eliminar(String id) {
         try {
             listaEstudiantes.removeIf(estudiante -> estudiante.getId().equals(id));
+            notificarSuscriptores();
         } catch (Exception e) {
             return "Hubo un error al eliminar un estudiante: " + e.toString();
         }
