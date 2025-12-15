@@ -1,8 +1,8 @@
 import React from 'react';
 import { Monitor, Laptop, Tablet, Camera, Mic } from 'lucide-react';
-import AppSidebar from '@/components/layout/AppSidebar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import AppSidebar from '@/view/components/layout/AppSidebar';
+import { Card, CardContent, CardHeader, CardTitle } from '@/view/components/ui/card';
+import { Badge } from '@/view/components/ui/badge';
 
 const deviceCategories = [
   { name: 'Proyectores', icon: Monitor, available: 8, total: 12 },

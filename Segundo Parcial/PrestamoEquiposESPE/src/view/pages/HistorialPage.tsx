@@ -1,8 +1,8 @@
 import React from 'react';
 import { History, Calendar, Monitor, Clock } from 'lucide-react';
-import AppSidebar from '@/components/layout/AppSidebar';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AppSidebar from '@/view/components/layout/AppSidebar';
+import { Badge } from '@/view/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/view/components/ui/card';
 import { LoanStatus } from '@/types';
 
 const mockHistory = [

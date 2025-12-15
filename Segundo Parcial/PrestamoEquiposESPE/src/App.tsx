@@ -1,19 +1,19 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/view/components/ui/toaster";
+import { Toaster as Sonner } from "@/view/components/ui/sonner";
+import { TooltipProvider } from "@/view/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import SolicitarPrestamoPage from "./pages/SolicitarPrestamoPage";
-import InventarioPage from "./pages/InventarioPage";
-import PrestamosPage from "./pages/PrestamosPage";
-import HistorialPage from "./pages/HistorialPage";
-import DispositivosPage from "./pages/DispositivosPage";
-import SolicitudEspecialPage from "./pages/SolicitudEspecialPage";
-import AprobarSolicitudesPage from "./pages/AprobarSolicitudesPage";
-import NotFound from "./pages/NotFound";
+import LoginPage from "./view/pages/LoginPage";
+import DashboardPage from "./view/pages/DashboardPage";
+import SolicitarPrestamoPage from "./view/pages/SolicitarPrestamoPage";
+import InventarioPage from "./view/pages/InventarioPage";
+import PrestamosPage from "./view/pages/PrestamosPage";
+import HistorialPage from "./view/pages/HistorialPage";
+import DispositivosPage from "./view/pages/DispositivosPage";
+import SolicitudEspecialPage from "./view/pages/SolicitudEspecialPage";
+import AprobarSolicitudesPage from "./view/pages/AprobarSolicitudesPage";
+import NotFound from "./view/pages/NotFound";
 
 const queryClient = new QueryClient();
 

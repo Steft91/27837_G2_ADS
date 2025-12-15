@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Check, X } from 'lucide-react';
-import AppSidebar from '@/components/layout/AppSidebar';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import AppSidebar from '@/view/components/layout/AppSidebar';
+import { Button } from '@/view/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/view/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/view/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 

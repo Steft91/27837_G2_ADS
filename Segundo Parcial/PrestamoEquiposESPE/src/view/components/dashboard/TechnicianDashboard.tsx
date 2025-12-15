@@ -1,7 +1,7 @@
 import React from 'react';
 import { Monitor, Users, Package, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/view/components/ui/card';
+import { Badge } from '@/view/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Mock data

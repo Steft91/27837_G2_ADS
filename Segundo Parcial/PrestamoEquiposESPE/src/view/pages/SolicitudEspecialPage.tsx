@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Mail } from 'lucide-react';
-import AppSidebar from '@/components/layout/AppSidebar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppSidebar from '@/view/components/layout/AppSidebar';
+import { Button } from '@/view/components/ui/button';
+import { Input } from '@/view/components/ui/input';
+import { Textarea } from '@/view/components/ui/textarea';
+import { Label } from '@/view/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/view/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 

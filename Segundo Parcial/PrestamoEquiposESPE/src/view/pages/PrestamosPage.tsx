@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
-import AppSidebar from '@/components/layout/AppSidebar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import AppSidebar from '@/view/components/layout/AppSidebar';
+import { Button } from '@/view/components/ui/button';
+import { Input } from '@/view/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/view/components/ui/select';
+import { Label } from '@/view/components/ui/label';
+import { Badge } from '@/view/components/ui/badge';
 import { Loan, LoanStatus } from '@/types';
 
 const initialLoans: Loan[] = [

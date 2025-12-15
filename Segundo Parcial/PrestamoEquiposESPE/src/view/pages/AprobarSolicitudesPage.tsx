@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { CheckCircle, XCircle, Mail, Search, Filter } from 'lucide-react';
-import AppSidebar from '@/components/layout/AppSidebar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AppSidebar from '@/view/components/layout/AppSidebar';
+import { Button } from '@/view/components/ui/button';
+import { Input } from '@/view/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/view/components/ui/select';
 import {
   Table,
   TableBody,
@@ -11,8 +11,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+} from '@/view/components/ui/table';
+import { Badge } from '@/view/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 
 interface SpecialRequest {

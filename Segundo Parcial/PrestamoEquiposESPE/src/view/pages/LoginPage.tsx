@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/view/components/ui/button';
+import { Input } from '@/view/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import campusImage from '@/assets/campus-espe.jpg';
@@ -116,13 +116,14 @@ const LoginPage: React.FC = () => {
             </div>
           </form>
 
-          {/* Demo credentials */}
+          {/* Demo credentials 
           <div className="mt-8 p-4 bg-muted rounded-lg text-sm">
             <p className="font-medium text-foreground mb-2">Credenciales de prueba:</p>
             <p className="text-muted-foreground">Estudiante: estudiante@espe.edu.ec</p>
             <p className="text-muted-foreground">Técnico: tecnico@espe.edu.ec</p>
             <p className="text-muted-foreground">Contraseña: 123456</p>
           </div>
+          */}
         </div>
       </div>
     </div>

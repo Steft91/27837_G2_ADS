@@ -1,26 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Trash2 } from 'lucide-react';
-import AppSidebar from '@/components/layout/AppSidebar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
+import AppSidebar from '@/view/components/layout/AppSidebar';
+import { Button } from '@/view/components/ui/button';
+import { Input } from '@/view/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/view/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/view/components/ui/dialog';
+import { Label } from '@/view/components/ui/label';
+import { Badge } from '@/view/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { Equipment, EquipmentStatus } from '@/types';
 
-const initialEquipment: Equipment[] = [
-  { id: 'PRY001', type: 'Proyector', brand: 'MAGCUBIC', model: 'HY300', location: 'Aula - A302', status: 'Prestado' },
-  { id: 'PRY002', type: 'Proyector', brand: 'Wanbo', model: 'X5 Pro', location: 'Bodega', status: 'Disponible' },
-  { id: 'PRY003', type: 'Proyector', brand: 'MAGCUBIC', model: 'HY300', location: 'Bodega', status: 'Mantenimiento' },
-  { id: 'PRY004', type: 'Proyector', brand: 'MAGCUBIC', model: 'HY300', location: 'Bodega', status: 'Dañado' },
-];
+import { Dispositivo } from "@/datos/model/dispositivoModel";
+import { DispositivoRepository } from "@/datos/repository/dispositivoRepository";
+import { DispositivoController } from "@/controller/dispositivoController";
+import { RepositoryObserver } from "@/datos/repository/repositoryObserver";
+
+const repository = new DispositivoRepository();
+const controller = new DispositivoController(repository);
+
 
 const equipmentTypes = ['Proyector', 'Laptop', 'Tablet', 'Cámara', 'Micrófono'];
 const statusOptions: EquipmentStatus[] = ['Disponible', 'Prestado', 'Mantenimiento', 'Dañado'];
 
-const getStatusColor = (status: EquipmentStatus) => {
+const getStatusColor = (status: string) => {
   switch (status) {
     case 'Disponible': return 'bg-status-available text-success-foreground';
     case 'Prestado': return 'bg-status-borrowed text-warning-foreground';
@@ -31,56 +33,132 @@ const getStatusColor = (status: EquipmentStatus) => {
 };
 
 const InventarioPage: React.FC = () => {
-  const [equipment, setEquipment] = useState<Equipment[]>(initialEquipment);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterModel, setFilterModel] = useState('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newEquipment, setNewEquipment] = useState({
-    type: 'Proyector',
-    brand: '',
-    model: '',
-    location: '',
-    status: 'Disponible' as EquipmentStatus,
+  const [dispositivos, setDispositivos] = useState<Dispositivo[]>([]);
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedDispositivo, setSelectedDispositivo] = useState<Dispositivo | null>(null);
+
+  const [editForm, setEditForm] = useState({
+    tipo: '',
+    marca: '',
+    modelo: '',
+    ubicacion: '',
+    estado: 'Disponible',
   });
 
-  const filteredEquipment = equipment.filter(item => {
-    const matchesSearch = item.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'all' || item.type === filterType;
-    const matchesStatus = filterStatus === 'all' || item.status === filterStatus;
-    const matchesModel = filterModel === 'all' || item.model === filterModel;
+  const [newEquipment, setNewEquipment] = useState({
+    tipo: 'Proyector',
+    marca: '',
+    modelo: '',
+    ubicacion: '',
+    estado: 'Disponible',
+  });
+
+
+  useEffect(() => {
+    const observer: RepositoryObserver<Dispositivo> = {
+      update(data) {
+        setDispositivos(data);
+      }
+    };
+
+    repository.attach(observer);
+    setDispositivos(repository.findAll());
+
+    return () => repository.detach(observer);
+  }, []);
+
+  const filteredEquipment = dispositivos.filter(item => {
+    const matchesSearch = item.modelo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.marca.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === 'all' || item.tipo === filterType;
+    const matchesStatus = filterStatus === 'all' || item.estado === filterStatus;
+    const matchesModel = filterModel === 'all' || item.modelo === filterModel;
     return matchesSearch && matchesType && matchesStatus && matchesModel;
   });
 
   const handleAddEquipment = () => {
-    const newId = `${newEquipment.type.substring(0, 3).toUpperCase()}${String(equipment.length + 1).padStart(3, '0')}`;
-    setEquipment([...equipment, { ...newEquipment, id: newId }]);
-    setIsAddDialogOpen(false);
-    setNewEquipment({ type: 'Proyector', brand: '', model: '', location: '', status: 'Disponible' });
-    toast({
-      title: "Equipo agregado",
-      description: `El equipo ${newId} ha sido agregado al inventario`,
-    });
+    try {
+      controller.crear(newEquipment);
+
+      setIsAddDialogOpen(false);
+      setNewEquipment({
+        tipo: 'Proyector',
+        marca: '',
+        modelo: '',
+        ubicacion: '',
+        estado: 'Disponible',
+      });
+
+      const last = dispositivos.at(-1);
+
+      toast({
+        title: "Equipo agregado",
+        description: `El equipo ${last?.id} ha sido agregado al inventario`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateEquipment = () => {
+    if (!selectedDispositivo) return;
+
+    try {
+      controller.actualizar(selectedDispositivo.id, editForm);
+
+      setIsEditDialogOpen(false);
+      setSelectedDispositivo(null);
+
+      toast({
+        title: "Equipo actualizado",
+        description: `El equipo ${selectedDispositivo.id} fue actualizado`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteEquipment = (id: string) => {
-    setEquipment(equipment.filter(item => item.id !== id));
-    toast({
-      title: "Equipo eliminado",
-      description: `El equipo ${id} ha sido eliminado del inventario`,
-    });
+    try {
+      controller.eliminar(id);
+
+      toast({
+        title: "Equipo eliminado",
+        description: `El equipo ${id} ha sido eliminado del inventario`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
-  const uniqueModels = [...new Set(equipment.map(e => e.model))];
+
+  const uniqueModels = [...new Set(dispositivos.map(e => e.modelo))];
 
   return (
     <AppSidebar>
       <div className="space-y-6 animate-fade-in">
         <h1 className="text-2xl font-bold text-foreground">Inventario</h1>
-        
+
         <p className="text-sm text-muted-foreground">
           * Agregue Nuevos equipos o haga inventario de los que ya tiene
         </p>
@@ -110,9 +188,9 @@ const InventarioPage: React.FC = () => {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Tipo de Equipo</Label>
-                  <Select 
-                    value={newEquipment.type} 
-                    onValueChange={(v) => setNewEquipment({...newEquipment, type: v})}
+                  <Select
+                    value={newEquipment.tipo}
+                    onValueChange={(v) => setNewEquipment({ ...newEquipment, tipo: v })}
                   >
                     <SelectTrigger className="bg-card">
                       <SelectValue />
@@ -127,32 +205,32 @@ const InventarioPage: React.FC = () => {
                 <div className="space-y-2">
                   <Label>Marca</Label>
                   <Input
-                    value={newEquipment.brand}
-                    onChange={(e) => setNewEquipment({...newEquipment, brand: e.target.value})}
+                    value={newEquipment.marca}
+                    onChange={(e) => setNewEquipment({ ...newEquipment, marca: e.target.value })}
                     className="bg-card"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Modelo</Label>
                   <Input
-                    value={newEquipment.model}
-                    onChange={(e) => setNewEquipment({...newEquipment, model: e.target.value})}
+                    value={newEquipment.modelo}
+                    onChange={(e) => setNewEquipment({ ...newEquipment, modelo: e.target.value })}
                     className="bg-card"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Ubicación</Label>
                   <Input
-                    value={newEquipment.location}
-                    onChange={(e) => setNewEquipment({...newEquipment, location: e.target.value})}
+                    value={newEquipment.ubicacion}
+                    onChange={(e) => setNewEquipment({ ...newEquipment, ubicacion: e.target.value })}
                     className="bg-card"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Estado</Label>
-                  <Select 
-                    value={newEquipment.status} 
-                    onValueChange={(v) => setNewEquipment({...newEquipment, status: v as EquipmentStatus})}
+                  <Select
+                    value={newEquipment.estado}
+                    onValueChange={(v) => setNewEquipment({ ...newEquipment, estado: v as EquipmentStatus })}
                   >
                     <SelectTrigger className="bg-card">
                       <SelectValue />
@@ -170,6 +248,59 @@ const InventarioPage: React.FC = () => {
               </div>
             </DialogContent>
           </Dialog>
+
+          {/* Dialog para actualizar el dispositivo */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="bg-card">
+              <DialogHeader>
+                <DialogTitle>Editar Equipo</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <Input
+                  value={editForm.marca}
+                  onChange={e => setEditForm({ ...editForm, marca: e.target.value })}
+                  placeholder="Marca"
+                />
+
+                <Input
+                  value={editForm.modelo}
+                  onChange={e => setEditForm({ ...editForm, modelo: e.target.value })}
+                  placeholder="Modelo"
+                />
+
+                <Input
+                  value={editForm.ubicacion}
+                  onChange={e => setEditForm({ ...editForm, ubicacion: e.target.value })}
+                  placeholder="Ubicación"
+                />
+
+                <Select
+                  value={editForm.estado}
+                  onValueChange={v =>
+                    setEditForm({ ...editForm, estado: v as EquipmentStatus })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  className="w-full"
+                  onClick={handleUpdateEquipment}
+                >
+                  Guardar Cambios
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
         </div>
 
         {/* Filters */}
@@ -235,22 +366,37 @@ const InventarioPage: React.FC = () => {
               {filteredEquipment.map((item, index) => (
                 <tr key={item.id} className={index % 2 === 0 ? 'bg-table-row-even' : 'bg-table-row-odd'}>
                   <td className="py-3 px-4 text-sm text-foreground">{item.id}</td>
-                  <td className="py-3 px-4 text-sm text-foreground">{item.type}</td>
-                  <td className="py-3 px-4 text-sm text-primary underline cursor-pointer">{item.brand} {item.model}</td>
-                  <td className="py-3 px-4 text-sm text-foreground">{item.location}</td>
+                  <td className="py-3 px-4 text-sm text-foreground">{item.tipo}</td>
+                  <td className="py-3 px-4 text-sm text-primary underline cursor-pointer">{item.marca} {item.modelo}</td>
+                  <td className="py-3 px-4 text-sm text-foreground">{item.ubicacion}</td>
                   <td className="py-3 px-4">
-                    <Badge className={getStatusColor(item.status)}>
-                      {item.status}
+                    <Badge className={getStatusColor(item.estado)}>
+                      {item.estado}
                     </Badge>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" className="text-primary hover:text-primary/80">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedDispositivo(item);
+                          setEditForm({
+                            tipo: item.tipo,
+                            marca: item.marca,
+                            modelo: item.modelo,
+                            ubicacion: item.ubicacion,
+                            estado: item.estado,
+                          });
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="text-destructive hover:text-destructive/80"
                         onClick={() => handleDeleteEquipment(item.id)}
                       >
