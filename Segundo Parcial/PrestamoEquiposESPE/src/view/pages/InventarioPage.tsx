@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2 } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Computer } from 'lucide-react';
 import AppSidebar from '@/view/components/layout/AppSidebar';
 import { Button } from '@/view/components/ui/button';
 import { Input } from '@/view/components/ui/input';
@@ -356,6 +356,7 @@ const InventarioPage: React.FC = () => {
 
         {/* Table */}
         <div className="bg-card rounded-lg border border-border overflow-hidden">
+        {filteredEquipment.length > 0 ?
           <table className="w-full">
             <thead>
               <tr className="bg-table-header">
@@ -411,19 +412,15 @@ const InventarioPage: React.FC = () => {
                   </td>
                 </tr>
               ))}
-              {/* Empty rows to fill table */}
-              {Array(Math.max(0, 8 - filteredEquipment.length)).fill(0).map((_, index) => (
-                <tr key={`empty-${index}`} className={((filteredEquipment.length + index) % 2 === 0) ? 'bg-table-row-even' : 'bg-table-row-odd'}>
-                  <td className="py-3 px-4">&nbsp;</td>
-                  <td className="py-3 px-4"></td>
-                  <td className="py-3 px-4"></td>
-                  <td className="py-3 px-4"></td>
-                  <td className="py-3 px-4"></td>
-                  <td className="py-3 px-4"></td>
-                </tr>
-              ))}
             </tbody>
           </table>
+        :
+        <div className='text-center align-middle h-[200px] rounded flex flex-col items-center justify-center'>
+          <Computer className="h-24 w-24" />
+          <br></br>
+          <h2 className='text-2xl font-bold text-foreground'>Aun no se Han agregado Dispositivos</h2>
+        </div>
+        }
         </div>
       </div>
     </AppSidebar>
