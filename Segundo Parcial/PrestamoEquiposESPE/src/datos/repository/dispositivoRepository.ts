@@ -17,6 +17,10 @@ export class DispositivoRepository {
     this.observers.forEach(o => o.update([...this.dispositivos]));
   }
 
+  notifyError(error: Error) {
+    this.observers.forEach(o => o.error?.(error));
+  }
+
   create(dispositivo: Dispositivo): void {
     this.dispositivos.push(dispositivo);
     this.notify();

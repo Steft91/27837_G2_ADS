@@ -64,7 +64,12 @@ const InventarioPage: React.FC = () => {
   useEffect(() => {
     const observer: RepositoryObserver<Dispositivo> = {
       update(data) {
+        console.log('[Observer] Update exitoso:', data);
         setDispositivos(data);
+      },
+
+      error(err) {
+        console.error('[Observer] Error detectado:', err.message);
       }
     };
 
