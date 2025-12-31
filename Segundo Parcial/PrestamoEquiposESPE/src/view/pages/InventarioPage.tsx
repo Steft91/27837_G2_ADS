@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/view/components/ui/label';
 import { Badge } from '@/view/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { Equipment, EquipmentStatus } from '@/types';
+import {EquipmentStatus } from '@/types';
 
 import { Dispositivo } from "@/datos/model/dispositivoModel";
 import { DispositivoRepository } from "@/datos/repository/dispositivoRepository";

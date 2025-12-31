@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Check, X } from 'lucide-react';
 import AppSidebar from '@/view/components/layout/AppSidebar';
 import { Button } from '@/view/components/ui/button';
@@ -6,7 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/view/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { MateriaRepository } from '@/datos/repository/materiaRepository';
+import { InscripcionRepository } from '@/datos/repository/inscripcionRepository';
 
+// --- Definición de constantes fuera del componente para limpieza ---
 const hours = [
   '6:00 am', '7:00 am', '8:00 am', '9:00 am', '10:00 am', '11:00 am',
   '12:00 pm', '1:00 pm', '2:00 pm', '3:00 pm', '4:00 pm', '5:00 pm',
@@ -14,8 +17,19 @@ const hours = [
 ];
 
 const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-
 const equipmentTypes = ['Proyector', 'Laptop', 'Tablet', 'Cámara', 'Micrófono'];
+
+const materiaColors = [
+  'bg-[#FFC9C9]', 'bg-[#FFD6A7]', 'bg-[#FEE685]', 'bg-[#FFF085]',
+  'bg-[#D8F999]', 'bg-[#B9F8CF]', 'bg-[#A4F4CF]', 'bg-[#96F7E4]',
+  'bg-[#A2F4FD]', 'bg-[#C6D2FF]'
+];
+
+const hourStringToNumber: Record<string, number> = {
+  '6:00 am': 6, '7:00 am': 7, '8:00 am': 8, '9:00 am': 9, '10:00 am': 10, '11:00 am': 11,
+  '12:00 pm': 12, '1:00 pm': 13, '2:00 pm': 14, '3:00 pm': 15, '4:00 pm': 16, '5:00 pm': 17,
+  '6:00 pm': 18, '7:00 pm': 19, '8:00 pm': 20, '9:00 pm': 21, '10:00 pm': 22, '11:00 pm': 23,
+};
 
 interface SelectedSlot {
   day: string;
@@ -24,12 +38,52 @@ interface SelectedSlot {
 
 const SolicitarPrestamoPage: React.FC = () => {
   const { user } = useAuth();
+
   const [selectedEquipment, setSelectedEquipment] = useState('Proyector');
   const [selectedSlots, setSelectedSlots] = useState<SelectedSlot[]>([]);
   const [showApproved, setShowApproved] = useState(false);
   const [showRejected, setShowRejected] = useState(false);
   const [requestCode, setRequestCode] = useState('');
 
+  // 1. Instanciar Repositorios (Top Level)
+  const materiaRepo = useMemo(() => new MateriaRepository(), []);
+  const inscripcionRepo = useMemo(() => new InscripcionRepository(), []);
+
+  // 2. Obtener Materias Inscritas (Top Level)
+  const materiasInscritas = useMemo(() => {
+    if (!user || user.role !== 'estudiante') return [];
+    const inscripciones = inscripcionRepo.findByEstudianteId(user.id);
+    return inscripciones
+      .map(insc => materiaRepo.findById(insc.materiaId))
+      .filter(Boolean);
+  }, [user, materiaRepo, inscripcionRepo]);
+
+  const materiaHorarioMap = useMemo(() => {
+    const colorMap: Record<string, string> = {};
+
+    materiasInscritas.forEach((mat, idx) => {
+      if (mat) colorMap[mat.id] = materiaColors[idx % materiaColors.length];
+    });
+
+    const map: Record<string, Record<number, { nombre: string; color: string }>> = {};
+    days.forEach(day => { map[day] = {}; });
+
+    materiasInscritas.forEach(mat => {
+      if (!mat) return;
+      days.forEach(day => {
+        if (mat.dias && mat.dias.includes(day)) {
+
+          for (let h = mat.horaInicio; h < mat.horaFin; h++) {
+            map[day][h] = { nombre: mat.nombre, color: colorMap[mat.id] };
+          }
+
+        }
+      });
+    });
+    return map;
+  }, [materiasInscritas, days]);
+
+  // Función Toggle limpia (sin hooks dentro)
   const toggleSlot = (day: string, hour: string) => {
     const exists = selectedSlots.find(s => s.day === day && s.hour === hour);
     if (exists) {
@@ -52,10 +106,7 @@ const SolicitarPrestamoPage: React.FC = () => {
       });
       return;
     }
-
-    // Simulate approval/rejection (70% approval rate for demo)
     const isApproved = Math.random() > 0.3;
-
     if (isApproved) {
       const code = 'QR' + Math.random().toString().slice(2, 10);
       setRequestCode(code);
@@ -65,16 +116,14 @@ const SolicitarPrestamoPage: React.FC = () => {
     }
   };
 
-  const handleClear = () => {
-    setSelectedSlots([]);
-  };
+  const handleClear = () => setSelectedSlots([]);
 
   const getSelectedTimeRange = () => {
     if (selectedSlots.length === 0) return '';
     const sortedSlots = [...selectedSlots].sort((a, b) =>
       hours.indexOf(a.hour) - hours.indexOf(b.hour)
     );
-    return `${sortedSlots[0].hour} - ${sortedSlots[sortedSlots.length - 1].hour.replace('am', 'am').replace('pm', 'pm')}`;
+    return `${sortedSlots[0].hour} - ${sortedSlots[sortedSlots.length - 1].hour}`;
   };
 
   return (
@@ -97,66 +146,85 @@ const SolicitarPrestamoPage: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
-          <Button variant="espe" onClick={handleSubmit}>
-            Solicitar
-          </Button>
+          <div>
+            <Button variant="espe" className='mx-2' onClick={handleSubmit}>
+              Solicitar
+            </Button>
+            <Button variant="ghost" className='mx-2' onClick={handleClear}>Limpiar Selección</Button>
+          </div>
+
         </div>
 
-        {/* Instructions */}
         <p className="text-sm text-muted-foreground">
-          Cada bloque representa <span className="font-bold text-foreground">1 h</span>, marque los bloques para los cuales desee solicitar el préstamo
+          Cada bloque representa <span className="font-bold text-foreground">1 h</span>. Las materias inscritas se muestran en color.
         </p>
 
         {/* Schedule Grid */}
-        <div className="bg-card rounded-lg overflow-hidden max-w-[80%] mx-auto"> {/* <--- AQUI */}
+        <div className="bg-card rounded-lg overflow-hidden max-w-[95%] mx-auto overflow-y-scroll max-h-[60vh]">
           <div className="overflow-x-auto">
-            <table className="w-full table-fixed">
+            <table className="w-full table-fixed border-collapse">
               <thead>
-                <tr> {/* Eliminado bg-table-header y borders */}
-                  <th className="w-24 py-2 px-2 text-right text-xs font-medium text-muted-foreground">
-                    {/* Espacio vacío para la columna de horas */}
-                  </th>
+                <tr>
+                  <th className="w-20 py-2 px-2 text-right text-xs font-medium text-muted-foreground"></th>
                   {days.map(day => (
-                    <th key={day} className="py-2 px-1 text-center text-sm font-medium text-foreground">
+                    <th key={day} className="py-2 px-1 text-center text-sm font-medium text-foreground w-32">
                       {day}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {hours.map((hour) => (
-                  <tr key={hour}> {/* Eliminados colores de fila alternados y borders */}
-                    <td className="py-1 px-2 text-xs text-muted-foreground text-right whitespace-nowrap">
-                      {hour}
-                    </td>
-                    {days.map(day => (
-                      <td
-                        key={`${day}-${hour}`}
-                        className="py-0.5 px-2" /* Padding reducido de p-1 a p-0.5 */
-                      >
-                        <button
-                          onClick={() => toggleSlot(day, hour)}
-                          className={`w-full h-7 rounded-md transition-all duration-200 ${ /* Altura reducida a h-7 */
-                            isSlotSelected(day, hour)
-                              ? 'bg-primary hover:bg-primary/90 shadow-sm transform scale-95'
-                              : 'bg-[#a0a0a0] hover:bg-muted' // Color más sutil para los no seleccionados
-                            }`}
-                        />
+                {hours.map((hour) => {
+                  const hourNum = hourStringToNumber[hour]; // Convertir "7:00 am" a 7
+
+                  return (
+                    <tr key={hour}>
+                      <td className="py-1 px-2 text-xs text-muted-foreground text-right whitespace-nowrap">
+                        {hour}
                       </td>
-                    ))}
-                  </tr>
-                ))}
+                      {days.map(day => {
+                        const materiaEnHorario = materiaHorarioMap[day]?.[hourNum];
+                        const isSelected = isSlotSelected(day, hour);
+
+                        return (
+                          <td key={`${day}-${hour}`} className="p-0.5 h-12">
+                            <button
+                              onClick={() => toggleSlot(day, hour)}
+                              className={`w-full h-full rounded-md transition-all duration-200 flex flex-col items-center justify-center p-1 border
+                                ${/* Lógica de Estilos */ ''}
+                                ${isSelected
+                                  ? 'ring-2 ring-primary !bg-primary text-white ring-offset-1 z-10'
+                                  : 'border-transparent'
+                                }
+                                ${materiaEnHorario
+                                  ? `${materiaEnHorario.color} hover:brightness-90 text-slate-800` // Estilo si es materia
+                                  : isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted/50 hover:bg-muted' // Estilo slot vacío
+                                }
+                              `}
+                            >
+                              {/* Mostrar nombre de la materia si existe */}
+                              {materiaEnHorario && (
+                                <span className="text-[10px] font-bold leading-tight text-center break-words w-full">
+                                  {materiaEnHorario.nombre}
+                                </span>
+                              )}
+
+                              {/* Indicador de selección si no hay materia (opcional) */}
+                              {!materiaEnHorario && isSelected && (
+                                <Check className="w-4 h-4" />
+                              )}
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Clear Button */}
-        <div className="flex justify-end">
-          <Button variant="clear" onClick={handleClear}>
-            Limpiar
-          </Button>
-        </div>
 
         {/* Approved Dialog */}
         <Dialog open={showApproved} onOpenChange={setShowApproved}>
@@ -228,6 +296,7 @@ const SolicitarPrestamoPage: React.FC = () => {
             </div>
           </DialogContent>
         </Dialog>
+
       </div>
     </AppSidebar>
   );
