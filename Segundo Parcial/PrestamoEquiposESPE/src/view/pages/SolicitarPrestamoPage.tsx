@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
 import AppSidebar from '@/view/components/layout/AppSidebar';
 import { Button } from '@/view/components/ui/button';
@@ -9,6 +9,21 @@ import { toast } from '@/hooks/use-toast';
 import { MateriaRepository } from '@/datos/repository/materiaRepository';
 import { InscripcionRepository } from '@/datos/repository/inscripcionRepository';
 
+import { Dispositivo } from "@/datos/model/dispositivoModel";
+import { DispositivoRepository } from "@/datos/repository/dispositivoRepository";
+import { DispositivoController } from "@/controller/dispositivoController";
+import { RepositoryObserver } from "@/datos/repository/repositoryObserver";
+import { DeviceDisponibility } from '@/types';
+import { PrestamoController } from '@/controller/prestamoController';
+import { PrestamoRepository } from '@/datos/repository/prestamoRepository';
+import { useNavigate } from 'react-router-dom';
+
+const repository = new DispositivoRepository();
+const controller = new DispositivoController(repository);
+
+const prestamoRepository = new PrestamoRepository();
+const prestamoController = new PrestamoController(prestamoRepository);
+
 // --- Definición de constantes fuera del componente para limpieza ---
 const hours = [
   '6:00 am', '7:00 am', '8:00 am', '9:00 am', '10:00 am', '11:00 am',
@@ -17,7 +32,6 @@ const hours = [
 ];
 
 const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-const equipmentTypes = ['Proyector', 'Laptop', 'Tablet', 'Cámara', 'Micrófono'];
 
 const materiaColors = [
   'bg-[#FFC9C9]', 'bg-[#FFD6A7]', 'bg-[#FEE685]', 'bg-[#FFF085]',
@@ -37,7 +51,9 @@ interface SelectedSlot {
 }
 
 const SolicitarPrestamoPage: React.FC = () => {
+    const navigate = useNavigate();
   const { user } = useAuth();
+  const [deviceCategories, setDeviceCategories] = useState<DeviceDisponibility[]>([]);
 
   const [selectedEquipment, setSelectedEquipment] = useState('Proyector');
   const [selectedSlots, setSelectedSlots] = useState<SelectedSlot[]>([]);
@@ -45,11 +61,9 @@ const SolicitarPrestamoPage: React.FC = () => {
   const [showRejected, setShowRejected] = useState(false);
   const [requestCode, setRequestCode] = useState('');
 
-  // 1. Instanciar Repositorios (Top Level)
   const materiaRepo = useMemo(() => new MateriaRepository(), []);
   const inscripcionRepo = useMemo(() => new InscripcionRepository(), []);
 
-  // 2. Obtener Materias Inscritas (Top Level)
   const materiasInscritas = useMemo(() => {
     if (!user || user.role !== 'estudiante') return [];
     const inscripciones = inscripcionRepo.findByEstudianteId(user.id);
@@ -83,7 +97,6 @@ const SolicitarPrestamoPage: React.FC = () => {
     return map;
   }, [materiasInscritas, days]);
 
-  // Función Toggle limpia (sin hooks dentro)
   const toggleSlot = (day: string, hour: string) => {
     const exists = selectedSlots.find(s => s.day === day && s.hour === hour);
     if (exists) {
@@ -106,11 +119,62 @@ const SolicitarPrestamoPage: React.FC = () => {
       });
       return;
     }
+
+    const prestamosUsuario = prestamoController.listar().filter(p => p.estudianteId === user?.id);
+    const tieneActivo = prestamosUsuario.some(p => p.estado === 'ACTIVO');
+    if (tieneActivo) {
+      toast({
+        title: "Préstamo pendiente",
+        description: "No puede solicitar un nuevo préstamo hasta devolver el actual.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const isApproved = Math.random() > 0.3;
     if (isApproved) {
-      const code = 'QR' + Math.random().toString().slice(2, 10);
-      setRequestCode(code);
-      setShowApproved(true);
+      try {
+        const sortedSlots = [...selectedSlots].sort((a, b) =>
+          hours.indexOf(a.hour) - hours.indexOf(b.hour)
+        );
+        const horaInicioStr = sortedSlots[0].hour;
+        const horaFinStr = sortedSlots[sortedSlots.length - 1].hour;
+        const day = sortedSlots[0].day;
+        const today = new Date();
+        const getHour = (h: string) => {
+          const [time, ampm] = h.split(' ');
+          let [hour] = time.split(':');
+          let hr = parseInt(hour, 10);
+          if (ampm === 'pm' && hr !== 12) hr += 12;
+          if (ampm === 'am' && hr === 12) hr = 0;
+          return hr;
+        };
+        const horaInicio = new Date(today);
+        horaInicio.setHours(getHour(horaInicioStr), 0, 0, 0);
+        const horaFin = new Date(today);
+        horaFin.setHours(getHour(horaFinStr) + 1, 0, 0, 0);
+
+        prestamoController.crear({
+          estudianteId: user?.id || '',
+          idClase: 'CLASE-FAKE', 
+          estado: 'ACTIVO',
+          horaInicio,
+          horaFin,
+          idDispositivo: 'DISP-FAKE', 
+        });
+
+        const prestamos = prestamoController.listar();
+        console.log(prestamos);
+        const last = prestamos[prestamos.length - 1];
+        setRequestCode(last?.code || '');
+        setShowApproved(true);
+      } catch (err: any) {
+        toast({
+          title: "Error",
+          description: err.message || 'No se pudo crear el préstamo',
+          variant: "destructive",
+        });
+      }
     } else {
       setShowRejected(true);
     }
@@ -126,6 +190,25 @@ const SolicitarPrestamoPage: React.FC = () => {
     return `${sortedSlots[0].hour} - ${sortedSlots[sortedSlots.length - 1].hour}`;
   };
 
+  useEffect(() => {
+    setDeviceCategories(controller.obtenerDisponibles());
+
+    const observer: RepositoryObserver<Dispositivo> = {
+      update(data) {
+        console.log('[Observer] Datos actualizados, refrescando vista:', data);
+        setDeviceCategories(controller.obtenerDisponibles());
+      },
+
+      error(err) {
+        console.error('[Observer] Error detectado:', err.message);
+      }
+    };
+
+    repository.attach(observer);
+
+    return () => repository.detach(observer);
+  }, []);
+
   return (
     <AppSidebar>
       <div className="space-y-6 animate-fade-in">
@@ -135,16 +218,27 @@ const SolicitarPrestamoPage: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Tipo de equipo</label>
-            <Select value={selectedEquipment} onValueChange={setSelectedEquipment}>
-              <SelectTrigger className="w-48 bg-card">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-card border-border">
-                {equipmentTypes.map(type => (
-                  <SelectItem key={type} value={type}>{type}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className='flex'>
+              <Select value={selectedEquipment} onValueChange={setSelectedEquipment}>
+                <SelectTrigger className="w-48 bg-card">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  {deviceCategories.map(category => (
+                    <SelectItem key={category.type} value={category.type}>{category.type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <button
+                className='mt-2 mx-5 italic text-primary underline hover:text-primary/80 transition-colors'
+                type='button'
+                onClick={() => navigate('/dispositivos')}
+              >
+                Revisar Disponibilidad
+              </button>
+            </div>
+
+
           </div>
           <div>
             <Button variant="espe" className='mx-2' onClick={handleSubmit}>

@@ -39,3 +39,10 @@ export interface TimeSlot {
   hour: string;
   selected: boolean;
 }
+
+export interface DeviceDisponibility {
+  type: string;
+  available: number;
+  total: number;
+  icon?: React.ElementType;
+}

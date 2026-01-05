@@ -1,18 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Monitor, Laptop, Tablet, Camera, Mic } from 'lucide-react';
 import AppSidebar from '@/view/components/layout/AppSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/view/components/ui/card';
 import { Badge } from '@/view/components/ui/badge';
 
-const deviceCategories = [
-  { name: 'Proyectores', icon: Monitor, available: 8, total: 12 },
-  { name: 'Laptops', icon: Laptop, available: 15, total: 20 },
-  { name: 'Tablets', icon: Tablet, available: 10, total: 15 },
-  { name: 'Cámaras', icon: Camera, available: 5, total: 8 },
-  { name: 'Micrófonos', icon: Mic, available: 12, total: 15 },
-];
+import { Dispositivo } from "@/datos/model/dispositivoModel";
+import { DispositivoRepository } from "@/datos/repository/dispositivoRepository";
+import { DispositivoController } from "@/controller/dispositivoController";
+import { RepositoryObserver } from "@/datos/repository/repositoryObserver";
+import { DeviceDisponibility } from '@/types';
+
+const repository = new DispositivoRepository();
+const controller = new DispositivoController(repository);
 
 const DispositivosPage: React.FC = () => {
+  const [deviceCategories, setDeviceCategories] = useState<DeviceDisponibility[]>([]);
+
+  useEffect(() => {
+    setDeviceCategories(controller.obtenerDisponibles());
+
+    const observer: RepositoryObserver<Dispositivo> = {
+      update(data) {
+        console.log('[Observer] Datos actualizados, refrescando vista:', data);
+        setDeviceCategories(controller.obtenerDisponibles());
+      },
+  
+      error(err) {
+        console.error('[Observer] Error detectado:', err.message);
+      }
+    };
+  
+    repository.attach(observer);
+      
+    return () => repository.detach(observer);
+  }, []);
+
   return (
     <AppSidebar>
       <div className="space-y-6 animate-fade-in">
@@ -24,15 +46,17 @@ const DispositivosPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {deviceCategories.map((category) => {
             const Icon = category.icon;
-            const availabilityPercent = (category.available / category.total) * 100;
+            const availabilityPercent = category.total > 0 
+                ? (category.available / category.total) * 100 
+                : 0;
             
             return (
-              <Card key={category.name} className="hover:shadow-lg transition-shadow">
+              <Card key={category.type} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Icon className="h-5 w-5 text-primary" />
-                      {category.name}
+                      {category.type}
                     </CardTitle>
                     <Badge 
                       className={

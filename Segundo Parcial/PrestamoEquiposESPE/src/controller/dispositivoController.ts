@@ -1,5 +1,7 @@
 import { Dispositivo } from "../datos/model/dispositivoModel";
 import { DispositivoRepository } from "../datos/repository/dispositivoRepository";
+import { DeviceDisponibility } from "@/types";
+import { Monitor, Laptop, Tablet, Camera, Mic } from 'lucide-react';
 
 export class DispositivoController {
   constructor(private repository: DispositivoRepository) {}
@@ -63,5 +65,36 @@ export class DispositivoController {
 
     if (data.modelo && data.modelo.trim().length < 2)
       throw new Error("Modelo inválido");
+  }
+
+  obtenerDisponibles(): DeviceDisponibility[] {
+    const iconMap: Record<string, React.ElementType> = {
+      'Proyector': Monitor,
+      'Laptop': Laptop,
+      'Pantalla Inteligente': Tablet,
+      'Cámara': Camera,
+      'Micrófono': Mic,
+    };
+
+    const all = this.repository.findAll();
+    const disponibles = all.filter(d => d.estado.trim().toLowerCase() === 'disponible');
+    const tipoCounts: { [key: string]: { available: number; total: number } } = {};
+
+    all.forEach(d => {
+      const tipo = d.tipo.trim();
+      if (!tipoCounts[tipo]) tipoCounts[tipo] = { available: 0, total: 0 };
+      tipoCounts[tipo].total++;
+    });
+    disponibles.forEach(d => {
+      const tipo = d.tipo.trim();
+      if (tipoCounts[tipo]) tipoCounts[tipo].available++;
+    });
+
+    return Object.entries(tipoCounts).map(([type, { available, total }]) => ({
+      type,
+      available,
+      total,
+      icon: iconMap[type] || Monitor
+    }));
   }
 }
