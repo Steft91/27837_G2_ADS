@@ -17,6 +17,7 @@ import { DeviceDisponibility } from '@/types';
 import { PrestamoController } from '@/controller/prestamoController';
 import { PrestamoRepository } from '@/datos/repository/prestamoRepository';
 import { useNavigate } from 'react-router-dom';
+import QRCode from "react-qr-code";
 
 const repository = new DispositivoRepository();
 const controller = new DispositivoController(repository);
@@ -51,7 +52,7 @@ interface SelectedSlot {
 }
 
 const SolicitarPrestamoPage: React.FC = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [deviceCategories, setDeviceCategories] = useState<DeviceDisponibility[]>([]);
 
@@ -156,11 +157,11 @@ const SolicitarPrestamoPage: React.FC = () => {
 
         prestamoController.crear({
           estudianteId: user?.id || '',
-          idClase: 'CLASE-FAKE', 
+          idClase: 'CLASE-FAKE',
           estado: 'ACTIVO',
           horaInicio,
           horaFin,
-          idDispositivo: 'DISP-FAKE', 
+          idDispositivo: 'DISP-FAKE',
         });
 
         const prestamos = prestamoController.listar();
@@ -341,15 +342,17 @@ const SolicitarPrestamoPage: React.FC = () => {
               </p>
               <div className="text-center p-4 bg-muted rounded-lg">
                 <p className="text-xs text-muted-foreground mb-2">CÓDIGO DE SOLICITUD</p>
-                <div className="w-32 h-32 mx-auto bg-foreground mb-2 rounded flex items-center justify-center">
-                  <div className="grid grid-cols-8 gap-0.5">
-                    {Array(64).fill(0).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-3 h-3 ${Math.random() > 0.5 ? 'bg-background' : 'bg-foreground'}`}
-                      />
-                    ))}
-                  </div>
+                <div className="w-32 h-32 mx-auto bg-white mb-2 rounded p-2 flex items-center justify-center shadow-sm">
+                  {requestCode && (
+                    <QRCode
+                      value={requestCode}
+                      size={256} 
+                      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                      fgColor="#000000"
+                      bgColor="#ffffff"
+                      level="M" 
+                    />
+                  )}
                 </div>
                 <p className="font-bold text-lg text-foreground">{requestCode}</p>
               </div>
