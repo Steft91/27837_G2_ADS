@@ -3,6 +3,7 @@ import { Monitor, Calendar, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/view/components/ui/card';
 import { Badge } from '@/view/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // Mock data for active loan
 const mockActiveLoan = {
@@ -18,6 +19,7 @@ const mockActiveLoan = {
 
 const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -29,7 +31,7 @@ const StudentDashboard: React.FC = () => {
       {/* Active Loan */}
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground">Préstamo Activo</h2>
-        
+
         <Card className="border-l-4 border-l-primary">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -66,18 +68,24 @@ const StudentDashboard: React.FC = () => {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+
           <CardContent className="p-6 text-center">
-            <Monitor className="h-12 w-12 mx-auto text-primary mb-3" />
-            <h3 className="font-semibold">Solicitar Préstamo</h3>
-            <p className="text-sm text-muted-foreground">Reserva un equipo tecnológico</p>
+            <button onClick={() => navigate('/solicitar')} >
+              <Monitor className="h-12 w-12 mx-auto text-primary mb-3" />
+              <h3 className="font-semibold">Solicitar Préstamo</h3>
+              <p className="text-sm text-muted-foreground">Reserva un equipo tecnológico</p>
+            </button>
           </CardContent>
+
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardContent className="p-6 text-center">
-            <Calendar className="h-12 w-12 mx-auto text-primary mb-3" />
-            <h3 className="font-semibold">Ver Historial</h3>
-            <p className="text-sm text-muted-foreground">Consulta tus préstamos anteriores</p>
+            <button onClick={() => navigate('/historial')} >
+              <Calendar className="h-12 w-12 mx-auto text-primary mb-3" />
+              <h3 className="font-semibold">Ver Historial</h3>
+              <p className="text-sm text-muted-foreground">Consulta tus préstamos anteriores</p>
+            </button>
           </CardContent>
         </Card>
 
@@ -89,7 +97,7 @@ const StudentDashboard: React.FC = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </div >
   );
 };
 

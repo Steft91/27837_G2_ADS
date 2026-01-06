@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen max-h-screen">
       {/* Left side - Campus Image */}
       <div className="hidden lg:flex lg:w-3/5 relative">
         <img
@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Right side - Login Form */}
-      <div className="relative z-10 w-full lg:w-2/5 flex flex-col items-center justify-center p-8 bg-card shadow-[-30px_0_40px_5px_rgba(0,0,0,0.3)]">
+      <div className="relative z-10 w-full lg:w-2/5 flex flex-col items-center justify-center p-8 bg-card border-[#575757] shadow-[-30px_0_40px_5px_rgba(0,0,0,0.3)]">
         <div className="w-full max-w-md space-y-8">
           {/* Logo and Title */}
           <div className="text-center space-y-4">

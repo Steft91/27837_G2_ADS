@@ -213,7 +213,8 @@ const SolicitarPrestamoPage: React.FC = () => {
   return (
     <AppSidebar>
       <div className="space-y-6 animate-fade-in">
-        <h1 className="text-2xl font-bold text-foreground">Solicitar Préstamo</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-[-20px]">Solicitar Préstamo</h1>
+        <hr className='mt-0'></hr>
 
         {/* Equipment Selection */}
         <div className="flex items-center justify-between">

@@ -66,11 +66,11 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ children }) => {
       {/* Sidebar */}
       <aside className={cn(
         // Clases base
-        "fixed inset-y-0 left-0 z-50 w-64 bg-[#3A784F] text-sidebar-foreground flex flex-col transition-transform duration-300 ease-in-out",
+        "max-h-screen fixed inset-y-0 left-0 z-50 w-64 bg-[#3A784F] text-sidebar-foreground flex flex-col transition-transform duration-300 ease-in-out",
         // Lógica Móvil: Si está abierto translate-x-0, si no, oculto a la izquierda
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         // Lógica Desktop (md): Siempre visible y relativo (ocupa espacio físico)
-        "md:relative md:translate-x-0"
+        "md:sticky md:translate-x-0"
       )}>
         
         {/* Botón X para cerrar en móvil dentro del sidebar */}
@@ -115,7 +115,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ children }) => {
         <div className="p-4 border-t border-sidebar-border">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-sidebar-accent/50 transition-colors text-sidebar-foreground"
+            className="flex items-center gap-3 px-4 py-3 w-full rounded-lg hover:bg-sidebar-accent/50 transition-colors text-sidebar-foreground hover:bg-[#e94d4d]"
           >
             <LogOut className="h-5 w-5" />
             <span className="text-sm font-medium">Cerrar Sesión</span>
@@ -150,7 +150,7 @@ const AppSidebar: React.FC<AppSidebarProps> = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <div className="p-6 flex-1 overflow-auto">
+        <div className="p-6 flex-1 overflow-hidden">
           {children}
         </div>
       </main>
