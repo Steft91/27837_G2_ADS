@@ -3,7 +3,7 @@ export class Prestamo {
     public id: string,
     public estudianteId: string, 
     public idClase: string,
-    public estado: 'ACTIVO' | 'FINALIZADO' | 'MORA' | 'CANCELADO', 
+    public estado: 'ACTIVO' | 'FINALIZADO' | 'MORA', 
     public horaInicio: Date,
     public horaFin: Date,
     public idDispositivo: string , 
