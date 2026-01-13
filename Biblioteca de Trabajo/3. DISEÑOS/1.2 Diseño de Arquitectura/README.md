@@ -1,0 +1,6 @@
+# 📌 Versiones y Variantes
+
+| **Código del ECS** | **Descripción del ECS**              | **Versión/Variante** | **Fecha de creación** | **Autor(es)**                                   | **Localización**                                | **Observaciones**                                             | **Variante de requisitos de usuario** | **Variante de plataforma** |
+| ------------------ | ------------------------------------ | -------------------- | --------------------- | ----------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------- | ------------------------------------- | -------------------------- |
+| ARQ                | Arquitectura 3 capas para el sistema | V1.0.0               | 12/12/2025             | Moisés Benalcázar, Stefany Díaz, Mateo Medranda       | 27837_G2_ADS\DISEÑOS\1.2 Diseño de Arquitectura     | Primera versión de la arquitectura del proyecto para El Prestamo de Dispositivos | Español                               | Windows 11                 |
+| ARQ | Arquitectura 3 capas para el sistema | V2.0.0   | 06/01/2026  | Moisés Benalcázar, Stefany Díaz, Mateo Medranda       | 27837_G2_ADS\DISEÑOS\1.2 Diseño de Arquitectura     | Versión aprobada | Español    | Windows 11   |

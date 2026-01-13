@@ -1,0 +1,7 @@
+# 📌 Versiones y Variantes
+
+| **Código del ECS** | **Descripción del ECS**  | **Versión/Variante** | **Fecha de creación** | **Autor(es)**                                   | **Localización**                      | **Observaciones**                             | **Variante de requisitos de usuario** | **Variante de plataforma** |
+| ------------------ | ------------------------ | -------------------- | --------------------- | ----------------------------------------------- | ------------------------------------- | --------------------------------------------- | ------------------------------------- | -------------------------- |
+| CU                 | Casos de uso del sistema | V1.0.0               | 24/10/2025            | Moisés Benalcázar, Stefany Díaz, Mateo Medranda | 227837_G2_ADS\DISEÑOS\1.3 Casos de uso | Primera versión del documento de casos de uso | Español                               | Windows 11                 |
+| CU                 | Casos de uso del sistema | V2.0.0               | 06/12/2025            | Moisés Benalcázar, Stefany Díaz, Mateo Medranda | 227837_G2_ADS\DISEÑOS\1.3 Casos de uso | Corrección de errores en actores y flujos     | Español                               | Windows 11                 |
+| CU                 | Casos de uso del sistema | V3.0.0              | 10/12/2025            | Moisés Benalcázar, Stefany Díaz, Mateo Medranda | 227837_G2_ADS\DISEÑOS\1.3 Casos de uso | Versión final aprobada                        | Español                               | Windows 11                 |

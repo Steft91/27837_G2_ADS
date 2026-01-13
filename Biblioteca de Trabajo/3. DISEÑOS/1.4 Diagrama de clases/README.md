@@ -1,0 +1,6 @@
+# 📌 Versiones y Variantes
+
+| **Código del ECS** | **Descripción del ECS** | **Versión/Variante** | **Fecha de creación** | **Autor(es)**                                   | **Localización**                               | **Observaciones**                    | **Variante de requisitos de usuario** | **Variante de plataforma** |
+| ------------------ | ----------------------- | -------------------- | --------------------- | ----------------------------------------------- | ---------------------------------------------- | ------------------------------------ | ------------------------------------- | -------------------------- |
+| DC                 | Diagrama de Clases      | V1.0.0               | 06/12/2025            | Moisés Benalcázar, Stefany Díaz, Mateo Medranda | 227837_G2_ADS\DISEÑOS\1.4 Diagrama de clases | Primera versión del diagrama         | Español                               | Windows 11                 |
+| DC                 | Diagrama de Clases      | V2.0.0               | 11/12/2025            | Moisés Benalcázar, Stefany Díaz, Mateo Medranda | 227837_G2_ADS\DISEÑOS\1.4 Diagrama de clases | Versión final aprobada con ajustes y correcciones en relaciones             | Español                               | Windows 11                 |
