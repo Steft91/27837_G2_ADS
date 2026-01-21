@@ -36,42 +36,47 @@ Este backend gestiona el préstamo de dispositivos tecnológicos (proyectores, l
    ```
 
 ## Endpoints principales
-> Todos requieren autenticación por token JWT en el header `Authorization: Bearer <token>`
+> Todos requieren autenticación por token JWT en el header `Authorization: Bearer <token>` (excepto el login y registro inicial de estudiante).
 
 ### Autenticación
-- `POST /api/login` — Login de usuario (estudiante, técnico, admin)
-
-### Dispositivos
-- `GET /api/dispositivos` — Listar dispositivos disponibles
-- `POST /api/dispositivos` — Crear dispositivo (**Técnico/Admin**)
-- `PUT /api/dispositivos/:id` — Actualizar dispositivo (**Técnico/Admin**)
-- `DELETE /api/dispositivos/:id` — Eliminar dispositivo (**Técnico/Admin**)
+- `POST /api/login` — Iniciar sesión (estudiante, técnico, admin). Retorna token y rol.
 
 ### Préstamos
-- `POST /api/prestamos` — Solicitar préstamo (**Estudiante**; asignación automática y validación de horario)
-- `GET /api/prestamos` — Ver préstamos (estudiante: solo los suyos; técnico/admin: todos)
-- `GET /api/prestamos/:id` — Ver detalle de préstamo
-- `PUT /api/prestamos/:id` — Actualizar préstamo (**Técnico/Admin**)
-- `DELETE /api/prestamos/:id` — Anular préstamo (estudiante: solo el suyo; técnico/admin: cualquiera)
+- `POST /api/prestamos` — Crear solicitud de préstamo. (**Estudiante**; asignación automática y validación de horario).
+- `GET /api/prestamos` — Listar préstamos (Estudiante: solo los suyos; Técnico/Admin: todos).
+- `GET /api/prestamos/historial` — Obtener historial completo de préstamos del usuario autenticado.
+- `GET /api/prestamos/activo` — Obtener el préstamo activo actual del usuario autenticado (si existe).
+- `GET /api/prestamos/:id` — Ver detalles de un préstamo específico.
+- `PUT /api/prestamos/:id` — Actualizar estado de préstamo. (**Técnico/Admin**).
+- `DELETE /api/prestamos/:id` — Anular/Eliminar préstamo. (Estudiante: solo el suyo; Técnico/Admin: cualquiera).
+
+### Dispositivos
+- `GET /api/dispositivos` — Listar todos los dispositivos disponibles.
+- `POST /api/dispositivos` — Crear nuevo dispositivo. (**Técnico/Admin**).
+- `GET /api/dispositivos/:id` — Obtener detalles de un dispositivo.
+- `PUT /api/dispositivos/:id` — Actualizar información de dispositivo. (**Técnico/Admin**).
+- `DELETE /api/dispositivos/:id` — Eliminar dispositivo. (**Técnico/Admin**).
 
 ### Estudiantes
-- `POST /api/estudiantes` — Registro de estudiante
-- `GET /api/estudiantes` — Listar estudiantes (**Técnico/Admin**)
-- `GET /api/estudiantes/:id` — Ver estudiante (propio o técnico/admin)
-- `PUT /api/estudiantes/:id` — Actualizar estudiante (propio o técnico/admin)
-- `DELETE /api/estudiantes/:id` — Eliminar estudiante (**Técnico/Admin**)
+- `POST /api/estudiantes` — Registrar nuevo estudiante (Público).
+- `GET /api/estudiantes` — Listar todos los estudiantes. (**Técnico/Admin**).
+- `GET /api/estudiantes/:id` — Ver perfil de estudiante. (Propio o Técnico/Admin).
+- `PUT /api/estudiantes/:id` — Actualizar datos de estudiante. (Propio o Técnico/Admin).
+- `DELETE /api/estudiantes/:id` — Eliminar estudiante. (**Técnico/Admin**).
 
 ### Materias
-- `GET /api/materias` — Listar materias
-- `POST /api/materias` — Crear materia (**Técnico/Admin**)
-- `PUT /api/materias/:id` — Actualizar materia (**Técnico/Admin**)
-- `DELETE /api/materias/:id` — Eliminar materia (**Técnico/Admin**)
+- `GET /api/materias` — Listar todas las materias.
+- `POST /api/materias` — Crear nueva materia. (**Técnico/Admin**).
+- `GET /api/materias/:id` — Ver detalles de una materia.
+- `PUT /api/materias/:id` — Actualizar materia. (**Técnico/Admin**).
+- `DELETE /api/materias/:id` — Eliminar materia. (**Técnico/Admin**).
 
 ### Inscripciones
-- `GET /api/inscripciones` — Listar inscripciones
-- `POST /api/inscripciones` — Crear inscripción (**Técnico/Admin**)
-- `PUT /api/inscripciones/:id` — Actualizar inscripción (**Técnico/Admin**)
-- `DELETE /api/inscripciones/:id` — Eliminar inscripción (**Técnico/Admin**)
+- `GET /api/inscripciones` — Listar todas las inscripciones.
+- `POST /api/inscripciones` — Crear nueva inscripción estudiante-materia. (**Técnico/Admin**).
+- `GET /api/inscripciones/:id` — Ver detalles de una inscripción.
+- `PUT /api/inscripciones/:id` — Actualizar inscripción. (**Técnico/Admin**).
+- `DELETE /api/inscripciones/:id` — Eliminar inscripción. (**Técnico/Admin**).
 
 ## Notas técnicas
 - El sistema utiliza **MongoDB** y **Mongoose** para persistencia.

@@ -77,7 +77,13 @@ const router = express.Router();
  * @swagger
  * /api/prestamos:
  *   post:
- *     summary: Crear un préstamo
+ *     summary: Crear un préstamo de dispositivo
+ *     description: |
+ *       Permite a un estudiante solicitar un préstamo de un dispositivo
+ *       para una fecha y hora específicas.
+ *       El sistema valida que el rango solicitado esté dentro del horario
+ *       de una materia en la que el estudiante esté inscrito y asigna
+ *       automáticamente un dispositivo disponible del tipo solicitado.
  *     tags: [Préstamos]
  *     security:
  *       - bearerAuth: []
@@ -87,14 +93,25 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - tipoDispositivo
+ *               - start
+ *               - end
  *             properties:
- *               dispositivoId:
+ *               tipoDispositivo:
  *                 type: string
- *                 example: 65f1a9b4c12e3a001234abcd
- *               fechaDevolucion:
+ *                 description: Tipo de dispositivo a prestar
+ *                 example: PROYECTOR
+ *               start:
  *                 type: string
- *                 format: date
- *                 example: 2026-02-01
+ *                 format: date-time
+ *                 description: Fecha y hora de inicio del préstamo
+ *                 example: 2026-02-01T10:00:00
+ *               end:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Fecha y hora de fin del préstamo
+ *                 example: 2026-02-01T12:00:00
  *     responses:
  *       201:
  *         description: Préstamo creado correctamente
@@ -112,11 +129,16 @@ const router = express.Router();
  *                 content:
  *                   $ref: '#/components/schemas/Prestamo'
  *       400:
- *         description: Error en la solicitud
+ *         description: |
+ *           Error de validación:
+ *           - Datos incompletos
+ *           - Fuera del horario de clase
+ *           - Fechas inválidas
+ *           - No hay dispositivos disponibles
  *       401:
  *         description: No autenticado
  *       403:
- *         description: No autorizado (solo estudiantes)
+ *         description: No autorizado (solo ESTUDIANTE)
  */
 router.post('/', auth, authorize(['ESTUDIANTE']), async (req, res) => {
   try {
@@ -186,6 +208,93 @@ router.get('/', auth, async (req, res) => {
       message: err.message,
       content: null
     });
+  }
+});
+
+/**
+ * @swagger
+ * /api/prestamos/historial:
+ *   get:
+ *     summary: Obtener historial de préstamos del usuario autenticado
+ *     tags: [Préstamos]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de préstamos del usuario
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Historial obtenido correctamente
+ *                 content:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Prestamo'
+ */
+router.get('/historial', auth, async (req, res) => {
+  try {
+    const prestamos = await service.getHistorialPrestamosByUsuario(req.user.id);
+    res.json({
+      status: 'success',
+      message: 'Historial obtenido correctamente',
+      content: prestamos
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/prestamos/activo:
+ *   get:
+ *     summary: Obtener el préstamo activo del usuario autenticado
+ *     tags: [Préstamos]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Préstamo activo encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Préstamo activo encontrado
+ *                 content:
+ *                   $ref: '#/components/schemas/Prestamo'
+ *       404:
+ *         description: El usuario no tiene préstamos activos
+ */
+router.get('/activo', auth, async (req, res) => {
+  try {
+    const prestamo = await service.getPrestamoActivoByUsuario(req.user.id);
+    if (!prestamo) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No tienes ningún préstamo activo en este momento',
+        content: null
+      });
+    }
+    res.json({
+      status: 'success',
+      message: 'Préstamo activo encontrado',
+      content: prestamo
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
   }
 });
 
