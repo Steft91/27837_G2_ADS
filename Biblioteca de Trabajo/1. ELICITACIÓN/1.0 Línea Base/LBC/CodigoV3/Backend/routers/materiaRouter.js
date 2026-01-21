@@ -4,8 +4,114 @@ const auth = require('../middleware/auth');
 const authorize = require('../middleware/authorize');
 const router = express.Router();
 
-// Crear materia (solo técnico o admin)
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Materia:
+ *       type: object
+ *       required:
+ *         - name
+ *         - location
+ *         - start
+ *         - end
+ *         - days
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ID auto-generado de la materia
+ *         name:
+ *           type: string
+ *           description: Nombre de la materia
+ *           example: Programación Web
+ *         location:
+ *           type: string
+ *           description: Ubicación de la clase
+ *           example: Aula 302
+ *         start:
+ *           type: number
+ *           description: Hora de inicio (formato 24h)
+ *           example: 14
+ *         end:
+ *           type: number
+ *           description: Hora de fin (formato 24h)
+ *           example: 16
+ *         days:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Días de la semana
+ *           example: ["Lunes", "Miércoles"]
+ */
 
+/**
+ * @swagger
+ * tags:
+ *   name: Materias
+ *   description: API para gestión de materias
+ */
+
+/**
+ * @swagger
+ * /api/materias:
+ *   post:
+ *     summary: Crear una nueva materia
+ *     tags: [Materias]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - location
+ *               - start
+ *               - end
+ *               - days
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: Programación Web
+ *               location:
+ *                 type: string
+ *                 example: Aula 302
+ *               start:
+ *                 type: number
+ *                 example: 14
+ *               end:
+ *                 type: number
+ *                 example: 16
+ *               days:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["Lunes", "Miércoles"]
+ *     responses:
+ *       201:
+ *         description: Materia creada correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Materia creada correctamente
+ *                 content:
+ *                   $ref: '#/components/schemas/Materia'
+ *       400:
+ *         description: Error en la solicitud
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado (solo TECNICO o ADMIN)
+ */
 router.post('/', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
   try {
     const materia = await service.create(req.body);
@@ -23,8 +129,37 @@ router.post('/', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
   }
 });
 
-// Listar materias (todos autenticados)
-
+/**
+ * @swagger
+ * /api/materias:
+ *   get:
+ *     summary: Listar todas las materias
+ *     tags: [Materias]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de materias
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Lista de materias
+ *                 content:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Materia'
+ *       401:
+ *         description: No autenticado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get('/', auth, async (req, res) => {
   try {
     const materias = await service.findAll();
@@ -42,8 +177,140 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// Ver materia por id (todos autenticados)
-
+/**
+ * @swagger
+ * /api/materias/{id}:
+ *   get:
+ *     summary: Obtener una materia por ID
+ *     tags: [Materias]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la materia
+ *         example: 65f1a9b4c12e3a001234abcd
+ *     responses:
+ *       200:
+ *         description: Materia encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ **
+ * @swagger
+ * /api/materias/{id}:
+ *   put:
+ *     summary: Actualizar una materia
+ *     tags: [Materias]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la materia
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               start:
+ *                 type: number
+ *               end:
+ *                 type: number
+ *               days:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Materia actualizada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Materia actualizada
+ *                 content:
+ *                   $ref: '#/components/schemas/Materia'
+ *       400:
+ *         description: Error en la solicitud
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado (solo TECNICO o ADMIN)
+ *       404:
+ *         description: No encontrado
+ */ *                 message:
+ *                   type: string
+ *                   example: Materia encontrada
+ *                 content:
+ *                   $ref: '#/components/schemas/Materia'
+ **
+ * @swagger
+ * /api/materias/{id}:
+ *   delete:
+ *     summary: Eliminar una materia
+ *     tags: [Materias]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la materia
+ *     responses:
+ *       200:
+ *         description: Materia eliminada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Materia eliminada
+ *                 content:
+ *                   $ref: '#/components/schemas/Materia'
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado (solo TECNICO o ADMIN)
+ *       404:
+ *         description: No encontrado
+ *       500:
+ *         description: Error del servidor
+ */ *         description: No autenticado
+ *       404:
+ *         description: No encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get('/:id', auth, async (req, res) => {
   try {
     const materia = await service.findById(req.params.id);

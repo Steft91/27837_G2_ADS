@@ -1,6 +1,13 @@
 
 /**
  * @swagger
+ * tags:
+ *   name: Auth
+ *   description: API de autenticación
+ */
+
+/**
+ * @swagger
  * /api/login:
  *   post:
  *     summary: Iniciar sesión (estudiante, técnico o admin)
@@ -11,11 +18,16 @@
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - email
+ *               - password
  *             properties:
  *               email:
  *                 type: string
+ *                 example: juan.perez@example.com
  *               password:
  *                 type: string
+ *                 example: password123
  *     responses:
  *       200:
  *         description: Token JWT y rol
@@ -24,12 +36,28 @@
  *             schema:
  *               type: object
  *               properties:
- *                 token:
+ *                 status:
  *                   type: string
- *                 role:
+ *                   example: success
+ *                 message:
  *                   type: string
+ *                   example: Login exitoso
+ *                 content:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                     role:
+ *                       type: string
+ *                       example: ESTUDIANTE
+ *                       enum: [ESTUDIANTE, TECNICO, ADMIN]
+ *       400:
+ *         description: Correo y contraseña requeridos
  *       401:
  *         description: Credenciales inválidas
+ *       500:
+ *         description: Error en el servidor
  */
 
 const express = require('express');
