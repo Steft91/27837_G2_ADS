@@ -152,7 +152,36 @@ router.post('/', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
  *                 status:
  *                   type: string
  *                   example: success
- **
+ *                 message:
+ *                   type: string
+ *                   example: Lista de dispositivos
+ *                 content:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Dispositivo'
+ *       401:
+ *         description: No autenticado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/', auth, async (req, res) => {
+  try {
+    const dispositivos = await service.findAll();
+    res.json({
+      status: 'success',
+      message: 'Lista de dispositivos',
+      content: dispositivos
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/dispositivos/{id}:
  *   get:
@@ -190,24 +219,32 @@ router.post('/', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
  *         description: No encontrado
  *       500:
  *         description: Error del servidor
- */ *                   type: string
- *                   example: Lista de dispositivos
- *                 content:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Dispositivo'
- *       401:
- *         description: No autenticado
- *       500:
- *         description: Error del servidor
  */
-router.get('/', auth, async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
   try {
-    const dispositivos = await service.findAll();
+    const dispositivo = await service.findById(req.params.id);
+    if (!dispositivo) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No encontrado',
+        content: null
+      });
+    }
     res.json({
       status: 'success',
-      message: 'Lista de dispositivos',
- **
+      message: 'Dispositivo encontrado',
+      content: dispositivo
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/dispositivos/{id}:
  *   put:
@@ -233,7 +270,62 @@ router.get('/', auth, async (req, res) => {
  *                 type: string
  *               brand:
  *                 type: string
- **
+ *               model:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Dispositivo actualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Dispositivo actualizado
+ *                 content:
+ *                   $ref: '#/components/schemas/Dispositivo'
+ *       400:
+ *         description: Error en la solicitud
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado (solo TECNICO o ADMIN)
+ *       404:
+ *         description: No encontrado
+ */
+router.put('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
+  try {
+    const dispositivo = await service.update(req.params.id, req.body);
+    if (!dispositivo) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No encontrado',
+        content: null
+      });
+    }
+    res.json({
+      status: 'success',
+      message: 'Dispositivo actualizado',
+      content: dispositivo
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/dispositivos/{id}:
  *   delete:
@@ -272,99 +364,7 @@ router.get('/', auth, async (req, res) => {
  *         description: No encontrado
  *       500:
  *         description: Error del servidor
- */ *                 type: string
- *               location:
- *                 type: string
- *               status:
- *                 type: string
- *     responses:
- *       200:
- *         description: Dispositivo actualizado
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 message:
- *                   type: string
- *                   example: Dispositivo actualizado
- *                 content:
- *                   $ref: '#/components/schemas/Dispositivo'
- *       400:
- *         description: Error en la solicitud
- *       401:
- *         description: No autenticado
- *       403:
- *         description: No autorizado (solo TECNICO o ADMIN)
- *       404:
- *         description: No encontrado
- */    });
-  } catch (err) {
-    res.status(500).json({
-      status: 'error',
-      message: err.message,
-      content: null
-    });
-  }
-});
-
-// Ver dispositivo por id (todos autenticados)
-
-router.get('/:id', auth, async (req, res) => {
-  try {
-    const dispositivo = await service.findById(req.params.id);
-    if (!dispositivo) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'No encontrado',
-        content: null
-      });
-    }
-    res.json({
-      status: 'success',
-      message: 'Dispositivo encontrado',
-      content: dispositivo
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: 'error',
-      message: err.message,
-      content: null
-    });
-  }
-});
-
-// Actualizar dispositivo (solo técnico o admin)
-
-router.put('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
-  try {
-    const dispositivo = await service.update(req.params.id, req.body);
-    if (!dispositivo) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'No encontrado',
-        content: null
-      });
-    }
-    res.json({
-      status: 'success',
-      message: 'Dispositivo actualizado',
-      content: dispositivo
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'error',
-      message: err.message,
-      content: null
-    });
-  }
-});
-
-// Eliminar dispositivo (solo técnico o admin)
-
+ */
 router.delete('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
   try {
     const dispositivo = await service.delete(req.params.id);

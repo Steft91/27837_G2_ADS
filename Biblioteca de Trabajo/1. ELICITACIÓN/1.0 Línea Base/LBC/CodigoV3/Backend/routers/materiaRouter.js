@@ -203,7 +203,44 @@ router.get('/', auth, async (req, res) => {
  *               properties:
  *                 status:
  *                   type: string
- **
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Materia encontrada
+ *                 content:
+ *                   $ref: '#/components/schemas/Materia'
+ *       401:
+ *         description: No autenticado
+ *       404:
+ *         description: No encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const materia = await service.findById(req.params.id);
+    if (!materia) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No encontrado',
+        content: null
+      });
+    }
+    res.json({
+      status: 'success',
+      message: 'Materia encontrada',
+      content: materia
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/materias/{id}:
  *   put:
@@ -261,12 +298,32 @@ router.get('/', auth, async (req, res) => {
  *         description: No autorizado (solo TECNICO o ADMIN)
  *       404:
  *         description: No encontrado
- */ *                 message:
- *                   type: string
- *                   example: Materia encontrada
- *                 content:
- *                   $ref: '#/components/schemas/Materia'
- **
+ */
+router.put('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
+  try {
+    const materia = await service.update(req.params.id, req.body);
+    if (!materia) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'No encontrado',
+        content: null
+      });
+    }
+    res.json({
+      status: 'success',
+      message: 'Materia actualizada',
+      content: materia
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/materias/{id}:
  *   delete:
@@ -305,64 +362,7 @@ router.get('/', auth, async (req, res) => {
  *         description: No encontrado
  *       500:
  *         description: Error del servidor
- */ *         description: No autenticado
- *       404:
- *         description: No encontrado
- *       500:
- *         description: Error del servidor
  */
-router.get('/:id', auth, async (req, res) => {
-  try {
-    const materia = await service.findById(req.params.id);
-    if (!materia) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'No encontrado',
-        content: null
-      });
-    }
-    res.json({
-      status: 'success',
-      message: 'Materia encontrada',
-      content: materia
-    });
-  } catch (err) {
-    res.status(500).json({
-      status: 'error',
-      message: err.message,
-      content: null
-    });
-  }
-});
-
-// Actualizar materia (solo técnico o admin)
-
-router.put('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
-  try {
-    const materia = await service.update(req.params.id, req.body);
-    if (!materia) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'No encontrado',
-        content: null
-      });
-    }
-    res.json({
-      status: 'success',
-      message: 'Materia actualizada',
-      content: materia
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'error',
-      message: err.message,
-      content: null
-    });
-  }
-});
-
-// Eliminar materia (solo técnico o admin)
-
 router.delete('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
   try {
     const materia = await service.delete(req.params.id);

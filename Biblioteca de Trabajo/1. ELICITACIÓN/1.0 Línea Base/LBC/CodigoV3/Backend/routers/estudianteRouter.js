@@ -200,7 +200,47 @@ router.get('/', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
  *                 content:
  *                   $ref: '#/components/schemas/Estudiante'
  *       401:
- **
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: No encontrado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/:id', auth, async (req, res) => {
+  if (req.user.role === 'TECNICO' || req.user.role === 'ADMIN' || req.user.id === req.params.id) {
+    try {
+      const estudiante = await service.findById(req.params.id);
+      if (!estudiante) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'No encontrado',
+          content: null
+        });
+      }
+      res.json({
+        status: 'success',
+        message: 'Estudiante encontrado',
+        content: estudiante
+      });
+    } catch (err) {
+      res.status(500).json({
+        status: 'error',
+        message: err.message,
+        content: null
+      });
+    }
+  } else {
+    res.status(403).json({
+      status: 'error',
+      message: 'No autorizado',
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/estudiantes/{id}:
  *   put:
@@ -255,17 +295,11 @@ router.get('/', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
  *         description: No autorizado
  *       404:
  *         description: No encontrado
- */ *       403:
- *         description: No autorizado
- *       404:
- *         description: No encontrado
- *       500:
- *         description: Error del servidor
  */
-router.get('/:id', auth, async (req, res) => {
+router.put('/:id', auth, async (req, res) => {
   if (req.user.role === 'TECNICO' || req.user.role === 'ADMIN' || req.user.id === req.params.id) {
     try {
-      const estudiante = await service.findById(req.params.id);
+      const estudiante = await service.update(req.params.id, req.body);
       if (!estudiante) {
         return res.status(404).json({
           status: 'error',
@@ -274,7 +308,27 @@ router.get('/:id', auth, async (req, res) => {
         });
       }
       res.json({
- **
+        status: 'success',
+        message: 'Estudiante actualizado',
+        content: estudiante
+      });
+    } catch (err) {
+      res.status(400).json({
+        status: 'error',
+        message: err.message,
+        content: null
+      });
+    }
+  } else {
+    res.status(403).json({
+      status: 'error',
+      message: 'No autorizado',
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/estudiantes/{id}:
  *   delete:
@@ -313,61 +367,7 @@ router.get('/:id', auth, async (req, res) => {
  *         description: No encontrado
  *       500:
  *         description: Error del servidor
- */        message: 'Estudiante encontrado',
-        content: estudiante
-      });
-    } catch (err) {
-      res.status(500).json({
-        status: 'error',
-        message: err.message,
-        content: null
-      });
-    }
-  } else {
-    res.status(403).json({
-      status: 'error',
-      message: 'No autorizado',
-      content: null
-    });
-  }
-});
-
-// Actualizar estudiante (solo técnico, admin o el propio estudiante)
-
-router.put('/:id', auth, async (req, res) => {
-  if (req.user.role === 'TECNICO' || req.user.role === 'ADMIN' || req.user.id === req.params.id) {
-    try {
-      const estudiante = await service.update(req.params.id, req.body);
-      if (!estudiante) {
-        return res.status(404).json({
-          status: 'error',
-          message: 'No encontrado',
-          content: null
-        });
-      }
-      res.json({
-        status: 'success',
-        message: 'Estudiante actualizado',
-        content: estudiante
-      });
-    } catch (err) {
-      res.status(400).json({
-        status: 'error',
-        message: err.message,
-        content: null
-      });
-    }
-  } else {
-    res.status(403).json({
-      status: 'error',
-      message: 'No autorizado',
-      content: null
-    });
-  }
-});
-
-// Eliminar estudiante (solo técnico o admin)
-
+ */
 router.delete('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
   try {
     const estudiante = await service.delete(req.params.id);

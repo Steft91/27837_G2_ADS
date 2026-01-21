@@ -245,7 +245,24 @@ router.get('/:id', auth, async (req, res) => {
         status: 'success',
         message: 'Préstamo encontrado',
         content: prestamo
- **
+      });
+    } else {
+      res.status(403).json({
+        status: 'error',
+        message: 'No autorizado',
+        content: null
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/prestamos/{id}:
  *   put:
@@ -293,23 +310,6 @@ router.get('/:id', auth, async (req, res) => {
  *         description: No autenticado
  *       403:
  *         description: No autorizado (solo TECNICO o ADMIN)
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               estado:
- *                 type: string
- *                 example: DEVUELTO
- *     responses:
- *       200:
- *         description: Préstamo actualizado
- *       403:
- *         description: No autorizado
  *       404:
  *         description: No encontrado
  */
@@ -319,7 +319,25 @@ router.put('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
     if (!prestamo) {
       return res.status(404).json({
         status: 'error',
- **
+        message: 'No encontrado',
+        content: null
+      });
+    }
+    res.json({
+      status: 'success',
+      message: 'Préstamo actualizado',
+      content: prestamo
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
  * @swagger
  * /api/prestamos/{id}:
  *   delete:
@@ -359,24 +377,6 @@ router.put('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
  *         description: No encontrado
  *       500:
  *         description: Error del servidor
- *   delete:
- *     summary: Anular préstamo
- *     tags: [Préstamos]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Préstamo anulado
- *       403:
- *         description: No autorizado
- *       404:
- *         description: No encontrado
  */
 router.delete('/:id', auth, async (req, res) => {
   try {
