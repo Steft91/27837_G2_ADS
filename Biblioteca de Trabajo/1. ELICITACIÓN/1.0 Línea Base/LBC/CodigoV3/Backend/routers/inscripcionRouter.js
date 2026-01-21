@@ -246,46 +246,8 @@ router.get('/:id', auth, async (req, res) => {
  *                 type: string
  *               materiaId:
  *                 type: string
- **
- * @swagger
- * /api/inscripciones/{id}:
- *   delete:
- *     summary: Eliminar una inscripción
- *     tags: [Inscripciones]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID de la inscripción
- *     responses:
- *       200:
- *         description: Inscripción eliminada
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 message:
- *                   type: string
- *                   example: Inscripción eliminada
- *                 content:
- *                   $ref: '#/components/schemas/Inscripcion'
- *       401:
- *         description: No autenticado
- *       403:
- *         description: No autorizado (solo TECNICO o ADMIN)
- *       404:
- *         description: No encontrado
- *       500:
- *         description: Error del servidor
- */ *                 type: string
+ *               date:
+ *                 type: string
  *                 format: date
  *     responses:
  *       200:
@@ -336,8 +298,46 @@ router.put('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
   }
 });
 
-// Eliminar inscripción (solo técnico o admin)
-
+/**
+ * @swagger
+ * /api/inscripciones/{id}:
+ *   delete:
+ *     summary: Eliminar una inscripción
+ *     tags: [Inscripciones]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID de la inscripción
+ *     responses:
+ *       200:
+ *         description: Inscripción eliminada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Inscripción eliminada
+ *                 content:
+ *                   $ref: '#/components/schemas/Inscripcion'
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: No autorizado (solo TECNICO o ADMIN)
+ *       404:
+ *         description: No encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.delete('/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
   try {
     const inscripcion = await service.delete(req.params.id);
