@@ -7,6 +7,10 @@ function validateDispositivo(data) {
       throw new Error(`El campo '${field}' es obligatorio y debe ser un string no vacío.`);
     }
   }
+  const validStatuses = ['Disponible', 'Mantenimiento', 'Dañado', 'Prestado'];
+  if (!validStatuses.includes(data.status)) {
+    throw new Error(`El estado debe ser uno de: ${validStatuses.join(', ')}.`);
+  }
 }
 
 module.exports = {

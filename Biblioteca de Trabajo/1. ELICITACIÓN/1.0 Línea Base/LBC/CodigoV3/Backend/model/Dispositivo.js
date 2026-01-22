@@ -5,7 +5,11 @@ const DispositivoSchema = new mongoose.Schema({
   brand: { type: String, required: true },
   model: { type: String, required: true },
   location: { type: String, required: true },
-  status: { type: String, required: true },
+  status: {
+    type: String,
+    required: true,
+    enum: ['Disponible', 'Mantenimiento', 'Dañado', 'Prestado']
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Dispositivo', DispositivoSchema);
