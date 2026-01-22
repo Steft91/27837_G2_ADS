@@ -1,31 +1,86 @@
-import React from 'react';
-import { Monitor, Users, Package, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Monitor, Package, Clock, AlertTriangle, CheckCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/view/components/ui/card';
 import { Badge } from '@/view/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
+import { api } from '@/services/api';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 
-// Mock data
-const stats = {
-  activeLoans: 12,
-  pendingReturns: 5,
-  availableEquipment: 28,
-  totalEquipment: 45,
-};
-
-const upcomingLoans = [
-  { id: 'PRY002', user: 'Ana García', equipment: 'Proyector', time: '2:00 pm - 4:00 pm', location: 'B201' },
-  { id: 'PRY003', user: 'Luis Mendoza', equipment: 'Laptop', time: '3:00 pm - 5:00 pm', location: 'A105' },
-  { id: 'PRY004', user: 'María Torres', equipment: 'Proyector', time: '4:00 pm - 6:00 pm', location: 'C302' },
-];
-
-const activeLoans = [
-  { id: 'PRY001', user: 'Carlos Robles', equipment: 'Proyector MAGCUBIC', startTime: '10:00 am', endTime: '12:00 pm', status: 'Activo' },
-  { id: 'LAP001', user: 'Pedro Sánchez', equipment: 'Laptop HP', startTime: '9:00 am', endTime: '1:00 pm', status: 'Activo' },
-  { id: 'TAB001', user: 'Laura Díaz', equipment: 'Tablet Samsung', startTime: '8:00 am', endTime: '10:00 am', status: 'Por vencer' },
-];
+interface Loan {
+  _id: string;
+  code: string;
+  userId: {
+    name: string;
+    email: string;
+  };
+  idDispositivo: {
+    name: string;
+    type: string;
+  };
+  start: string;
+  end: string;
+  status: 'ACTIVO' | 'FINALIZADO' | 'MORA' | 'CANCELADO';
+}
 
 const TechnicianDashboard: React.FC = () => {
   const { user } = useAuth();
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const loansResponse = await api.getPrestamos();
+        setLoans(loansResponse.content || []);
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const { activeLoans, overdueLoans, pendingReturnsCount, stats } = useMemo(() => {
+    const now = new Date();
+
+    // "Pendiente de entrega" (interpreted as Active loans currently out)
+    const active = loans.filter(l => l.status === 'ACTIVO' && new Date(l.end) > now);
+
+    // "En Mora" (Explicit MORA status or Active but past end date)
+    const overdue = loans.filter(l => l.status === 'MORA' || (l.status === 'ACTIVO' && new Date(l.end) < now));
+
+    // Stats
+    const totalActive = active.length + overdue.length;
+    const pendingReturns = totalActive; // Total devices out
+    // Since we don't have total equipment count from this API, we can either fetch devices or just show loan stats.
+    // For now I'll just keep the loan stats accurate.
+
+    return {
+      activeLoans: active,
+      overdueLoans: overdue,
+      pendingReturnsCount: pendingReturns,
+      stats: {
+        activeLoans: totalActive,
+        mora: overdue.length,
+        todayLoans: loans.filter(l => {
+          const today = new Date().toISOString().split('T')[0];
+          return new Date(l.start).toISOString().split('T')[0] === today;
+        }).length
+      }
+    };
+  }, [loans]);
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -35,7 +90,7 @@ const TechnicianDashboard: React.FC = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -54,11 +109,11 @@ const TechnicianDashboard: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Devoluciones Pendientes</p>
-                <p className="text-3xl font-bold text-foreground">{stats.pendingReturns}</p>
+                <p className="text-sm text-muted-foreground">En Mora</p>
+                <p className="text-3xl font-bold text-destructive">{stats.mora}</p>
               </div>
-              <div className="h-12 w-12 bg-warning/10 rounded-full flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-warning" />
+              <div className="h-12 w-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
             </div>
           </CardContent>
@@ -68,8 +123,8 @@ const TechnicianDashboard: React.FC = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Equipos Disponibles</p>
-                <p className="text-3xl font-bold text-foreground">{stats.availableEquipment}</p>
+                <p className="text-sm text-muted-foreground">Solicitados Hoy</p>
+                <p className="text-3xl font-bold text-foreground">{stats.todayLoans}</p>
               </div>
               <div className="h-12 w-12 bg-success/10 rounded-full flex items-center justify-center">
                 <CheckCircle className="h-6 w-6 text-success" />
@@ -77,86 +132,76 @@ const TechnicianDashboard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Equipos</p>
-                <p className="text-3xl font-bold text-foreground">{stats.totalEquipment}</p>
-              </div>
-              <div className="h-12 w-12 bg-secondary/10 rounded-full flex items-center justify-center">
-                <Package className="h-6 w-6 text-secondary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Active Loans */}
-        <Card>
+        {/* Pendiente de Entrega (Active Loans) */}
+        <Card className="h-full">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Monitor className="h-5 w-5 text-primary" />
-              Préstamos Activos
+              Pendiente de Entrega (Activos)
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {activeLoans.map((loan) => (
-                <div 
-                  key={loan.id} 
-                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{loan.equipment}</p>
-                    <p className="text-sm text-muted-foreground">{loan.user}</p>
+            {activeLoans.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">No hay préstamos activos pendientes de entrega.</p>
+            ) : (
+              <div className="space-y-4">
+                {activeLoans.map((loan) => (
+                  <div
+                    key={loan._id}
+                    className="flex items-center justify-between p-3 bg-muted/50 border border-border/50 rounded-lg hover:bg-muted/80 transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground truncate">{loan.idDispositivo?.name}</p>
+                      <p className="text-sm text-primary font-medium">{loan.userId?.name || 'Desconocido'}</p>
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <p className="text-xs text-muted-foreground">Devolución:</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {format(new Date(loan.end), "HH:mm", { locale: es })}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-foreground">{loan.startTime} - {loan.endTime}</p>
-                    <Badge 
-                      className={
-                        loan.status === 'Activo' 
-                          ? 'bg-success text-success-foreground' 
-                          : 'bg-warning text-warning-foreground'
-                      }
-                    >
-                      {loan.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Upcoming Loans */}
-        <Card>
+        {/* En Mora (Overdue Loans) */}
+        <Card className="h-full border-destructive/20">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              Próximos Préstamos
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              En Mora
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {upcomingLoans.map((loan) => (
-                <div 
-                  key={loan.id} 
-                  className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                >
-                  <div>
-                    <p className="font-medium text-foreground">{loan.equipment}</p>
-                    <p className="text-sm text-muted-foreground">{loan.user}</p>
+            {overdueLoans.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">No hay préstamos en mora.</p>
+            ) : (
+              <div className="space-y-4">
+                {overdueLoans.map((loan) => (
+                  <div
+                    key={loan._id}
+                    className="flex items-center justify-between p-3 bg-destructive/5 border border-destructive/10 rounded-lg"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-semibold text-foreground truncate">{loan.idDispositivo?.name}</p>
+                      <p className="text-sm text-destructive font-medium">{loan.userId?.name || 'Desconocido'}</p>
+                    </div>
+                    <div className="text-right shrink-0 ml-2">
+                      <Badge variant="destructive">Vencido</Badge>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {format(new Date(loan.end), "d MMM", { locale: es })}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-foreground">{loan.time}</p>
-                    <p className="text-xs text-muted-foreground">{loan.location}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

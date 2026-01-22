@@ -1,39 +1,78 @@
 import React, { useEffect, useState } from 'react';
-import { Monitor, Laptop, Tablet, Camera, Mic } from 'lucide-react';
+import { Monitor, Laptop, Tablet, Camera, Mic, Loader2 } from 'lucide-react';
 import AppSidebar from '@/view/components/layout/AppSidebar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/view/components/ui/card';
 import { Badge } from '@/view/components/ui/badge';
 
-import { Dispositivo } from "@/datos/model/dispositivoModel";
-import { DispositivoRepository } from "@/datos/repository/dispositivoRepository";
-import { DispositivoController } from "@/controller/dispositivoController";
-import { RepositoryObserver } from "@/datos/repository/repositoryObserver";
 import { DeviceDisponibility } from '@/types';
-
-const repository = new DispositivoRepository();
-const controller = new DispositivoController(repository);
+import { api } from '@/services/api';
+import { toast } from '@/hooks/use-toast';
 
 const DispositivosPage: React.FC = () => {
   const [deviceCategories, setDeviceCategories] = useState<DeviceDisponibility[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const processDevices = (devices: any[]): DeviceDisponibility[] => {
+    const iconMap: any = {
+      'Proyector': Monitor,
+      'Laptop': Laptop,
+      'Pantalla Inteligente': Tablet,
+      'Cámara': Camera,
+      'Micrófono': Mic,
+    };
+    const tipoCounts: any = {};
+
+    devices.forEach(d => {
+      const tipo = d.type || d.tipo;
+      if (!tipo) return;
+      const tipoTrim = tipo.trim();
+
+      if (!tipoCounts[tipoTrim]) tipoCounts[tipoTrim] = { available: 0, total: 0 };
+      tipoCounts[tipoTrim].total++;
+
+      if (d.status === 'Disponible' || d.estado === 'Disponible') {
+        tipoCounts[tipoTrim].available++;
+      }
+    });
+
+    return Object.entries(tipoCounts).map(([type, stats]: [string, any]) => ({
+      type,
+      available: stats.available,
+      total: stats.total,
+      icon: iconMap[type] || Monitor
+    }));
+  };
 
   useEffect(() => {
-    setDeviceCategories(controller.obtenerDisponibles());
-
-    const observer: RepositoryObserver<Dispositivo> = {
-      update(data) {
-        console.log('[Observer] Datos actualizados, refrescando vista:', data);
-        setDeviceCategories(controller.obtenerDisponibles());
-      },
-  
-      error(err) {
-        console.error('[Observer] Error detectado:', err.message);
+    const fetchDevices = async () => {
+      setLoading(true);
+      try {
+        const response = await api.getDispositivos();
+        setDeviceCategories(processDevices(response.content));
+      } catch (err: any) {
+        console.error(err);
+        toast({
+          title: "Error",
+          description: "No se pudo cargar la disponibilidad de dispositivos",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
     };
-  
-    repository.attach(observer);
-      
-    return () => repository.detach(observer);
+
+    fetchDevices();
   }, []);
+
+  if (loading) {
+    return (
+      <AppSidebar>
+        <div className="flex h-[80vh] w-full items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      </AppSidebar>
+    );
+  }
 
   return (
     <AppSidebar>
@@ -45,11 +84,11 @@ const DispositivosPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {deviceCategories.map((category) => {
-            const Icon = category.icon;
-            const availabilityPercent = category.total > 0 
-                ? (category.available / category.total) * 100 
-                : 0;
-            
+            const Icon = category.icon || Monitor;
+            const availabilityPercent = category.total > 0
+              ? (category.available / category.total) * 100
+              : 0;
+
             return (
               <Card key={category.type} className="hover:shadow-lg transition-shadow">
                 <CardHeader className="pb-2">
@@ -58,11 +97,11 @@ const DispositivosPage: React.FC = () => {
                       <Icon className="h-5 w-5 text-primary" />
                       {category.type}
                     </CardTitle>
-                    <Badge 
+                    <Badge
                       className={
-                        availabilityPercent > 50 
-                          ? 'bg-success text-success-foreground' 
-                          : availabilityPercent > 20 
+                        availabilityPercent > 50
+                          ? 'bg-success text-success-foreground'
+                          : availabilityPercent > 20
                             ? 'bg-warning text-warning-foreground'
                             : 'bg-destructive text-destructive-foreground'
                       }
@@ -78,7 +117,7 @@ const DispositivosPage: React.FC = () => {
                       <span className="font-medium text-foreground">{category.available} / {category.total}</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-primary h-2 rounded-full transition-all"
                         style={{ width: `${availabilityPercent}%` }}
                       />

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const PrestamoSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, equired: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
   userRole: { type: String, enum: ['ESTUDIANTE', 'DOCENTE', 'ADMIN'], required: true },
   idClase: { type: String, required: true },
   status: { type: String, enum: ['ACTIVO', 'FINALIZADO', 'MORA', 'CANCELADO'], required: true },

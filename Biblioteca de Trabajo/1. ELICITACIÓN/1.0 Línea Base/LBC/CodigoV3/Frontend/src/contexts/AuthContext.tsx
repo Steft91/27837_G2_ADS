@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User, UserRole } from '@/types';
 import { EstudianteRepository } from '@/datos/repository/estudianteRepository';
 import { Estudiante } from '@/datos/model/estudianteModel';
+import { api } from '@/services/api';
+import { jwtDecode } from "jwt-decode";
+import { toast } from "@/hooks/use-toast";
 
 interface AuthContextType {
   user: User | null;
@@ -22,52 +25,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Autenticación de estudiante
-    const estudiante: Estudiante | undefined = estudianteRepo.authenticate(email, password);
-    if (estudiante) {
-      const estudianteUser: User = {
-        id: estudiante.id,
-        name: estudiante.nombre,
-        email: estudiante.correo,
-        role: 'estudiante',
+    try {
+      const response = await api.login(email, password);
+      const { token } = response.content;
+
+      localStorage.setItem('token', token);
+
+      // Decode user from token
+      const decoded: any = jwtDecode(token);
+
+      // Adapt decoded payload to User interface
+      const user: User = {
+        id: decoded.id,
+        name: decoded.name || decoded.email, // fallback
+        email: decoded.email,
+        role: (decoded.role?.toLowerCase() || 'estudiante') as UserRole,
       };
-      setUser(estudianteUser);
-      localStorage.setItem('user', JSON.stringify(estudianteUser));
+
+      setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      toast({ title: "Bienvenido", description: `Hola ${user.name}` });
       return true;
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        title: "Error de autenticación",
+        description: error.message || "No se pudo iniciar sesión",
+        variant: "destructive"
+      });
+      return false;
     }
-
-    // Autenticación genérica para técnico y admin
-    const genericUsers: Array<{ email: string; password: string; user: User }> = [
-      {
-        email: 'tecnico@espe.edu.ec',
-        password: '123456',
-        user: {
-          id: '2',
-          name: 'María García López',
-          email: 'tecnico@espe.edu.ec',
-          role: 'tecnico',
-        },
-      },
-      {
-        email: 'admin@espe.edu.ec',
-        password: '123456',
-        user: {
-          id: '3',
-          name: 'Juan Pérez Martínez',
-          email: 'admin@espe.edu.ec',
-          role: 'admin',
-        },
-      },
-    ];
-
-    const found = genericUsers.find(u => u.email === email && u.password === password);
-    if (found) {
-      setUser(found.user);
-      localStorage.setItem('user', JSON.stringify(found.user));
-      return true;
-    }
-
-    return false;
   };
 
   const logout = () => {

@@ -14,7 +14,9 @@ function normalizarDia(dia) {
 
 module.exports = {
   async getHistorialPrestamosByUsuario(usuarioId) {
-    return await Prestamo.find({ userId: usuarioId });
+    return await Prestamo.find({ userId: usuarioId })
+      .populate({ path: 'userId', model: 'Estudiante', select: 'name email career' })
+      .populate('idDispositivo');
   },
   async getPrestamoActivoByUsuario(usuarioId) {
     return await Prestamo.findOne({ userId: usuarioId, status: 'ACTIVO' });
@@ -127,7 +129,9 @@ module.exports = {
     return prestamoCreado[0];
   },
   async findAll() {
-    return await Prestamo.find();
+    return await Prestamo.find()
+      .populate({ path: 'userId', model: 'Estudiante', select: 'name email career' })
+      .populate('idDispositivo');
   },
   async findById(id) {
     return await Prestamo.findById(id);
