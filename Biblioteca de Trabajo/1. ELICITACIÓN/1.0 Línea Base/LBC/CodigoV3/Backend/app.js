@@ -29,6 +29,11 @@ app.use('/api/materias', materiaRouter);
 app.use('/api/prestamos', prestamoRouter);
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
-});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Servidor escuchando en puerto ${PORT}`);
+  });
+}
+
+module.exports = app;
