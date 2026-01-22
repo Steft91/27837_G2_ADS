@@ -1,5 +1,6 @@
-# Prueba 
+# 📌 Versiones y Variantes
 
-### Documentos
-
-- Vacio actualmente
+| **Código del ECS** | **Descripción del ECS**                              | **Versión/Variante** | **Fecha de creación** | **Autor(es)**                                   | **Localización**                                                    | **Observaciones**                                                                              | **Variante de requisitos de usuario** | **Variante de plataforma** |
+| ------------------ | ---------------------------------------------------- | -------------------- | --------------------- | ----------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------- | -------------------------- |
+| PP-V1              | Plan de Pruebas Unitarias - Dispositivos y Préstamos | V1.0.0               | 19/01/2026            | Moisés Benalcázar, Stefany Díaz, Mateo Medranda | 27837_G2_ADS\Biblioteca de Trabajo\1. ELICITACIÓN\1.7 Pruebas Unitarias | Creacion del plan de pruebas | Español                               | Windows 11                 |
+| PP-V2              | Plan de Pruebas Unitarias - Dispositivos y Préstamos | V2.0.0               | 21/01/2026            | Moisés Benalcázar, Stefany Díaz, Mateo Medranda | 27837_G2_ADS\Biblioteca de Trabajo\1. ELICITACIÓN\1.7 Pruebas Unitarias | Plan completo con 45 casos de prueba (18 Dispositivos + 27 Préstamos). Incluye validaciones y manejo de errores | Español                               | Windows 11                 |
