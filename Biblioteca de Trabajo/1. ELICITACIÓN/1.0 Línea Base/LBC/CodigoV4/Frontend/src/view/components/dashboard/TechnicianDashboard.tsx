@@ -32,10 +32,12 @@ const TechnicianDashboard: React.FC = () => {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Validation Modal State
-  const [showValidation, setShowValidation] = useState(false);
-  const [validationCode, setValidationCode] = useState('');
-  const [validating, setValidating] = useState(false);
+  // Validation/Management Modal State
+  const [showManagement, setShowManagement] = useState(false);
+  const [managementCode, setManagementCode] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [foundLoan, setFoundLoan] = useState<Loan | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   const fetchLoans = async () => {
     try {
@@ -53,20 +55,55 @@ const TechnicianDashboard: React.FC = () => {
     fetchLoans();
   }, []);
 
-  const handleValidate = async () => {
-    if (!validationCode) return;
-    setValidating(true);
+  const handleSearch = async () => {
+    if (!managementCode) return;
+    setSearching(true);
+    setFoundLoan(null);
     try {
-      await api.validatePrestamo(validationCode);
-      toast({ title: "Préstamo validado exitosamente", variant: "default" });
-      setShowValidation(false);
-      setValidationCode('');
+      const response = await api.getPrestamoByCode(managementCode);
+      setFoundLoan(response.content);
+    } catch (err: any) {
+      toast({ title: "No encontrado", description: "No se encontró un préstamo con ese código", variant: "destructive" });
+      setFoundLoan(null);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleDeliver = async () => {
+    if (!foundLoan) return;
+    setProcessing(true);
+    try {
+      await api.validatePrestamo(foundLoan.code);
+      toast({ title: "Préstamo entregado exitosamente", variant: "default" });
+      handleCloseManagement();
       fetchLoans();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
-      setValidating(false);
+      setProcessing(false);
     }
+  };
+
+  const handleFinalize = async () => {
+    if (!foundLoan) return;
+    setProcessing(true);
+    try {
+      await api.finalizePrestamo(foundLoan._id);
+      toast({ title: "Préstamo finalizado exitosamente", variant: "default" });
+      handleCloseManagement();
+      fetchLoans();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleCloseManagement = () => {
+    setShowManagement(false);
+    setManagementCode('');
+    setFoundLoan(null);
   };
 
   const { pendingDelivery, overdueLoans, stats } = useMemo(() => {
@@ -115,8 +152,8 @@ const TechnicianDashboard: React.FC = () => {
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground">Panel de control - {user?.role === 'admin' ? 'Administrador' : 'Técnico'}</p>
         </div>
-        <Button onClick={() => setShowValidation(true)}>
-          Validar Préstamo
+        <Button onClick={() => setShowManagement(true)}>
+          Gestionar Préstamo
         </Button>
       </div>
 
@@ -191,9 +228,14 @@ const TechnicianDashboard: React.FC = () => {
                     <Button
                       size="sm"
                       className="bg-yellow-500 hover:bg-yellow-600 text-white"
-                      onClick={() => setShowValidation(true)}
+                      onClick={() => {
+                        setManagementCode(loan.code);
+                        setShowManagement(true);
+                        // Optional: auto-search immediately if we pass the code?
+                        // For now just open modal pre-filled
+                      }}
                     >
-                      Entregar
+                      Gestionar
                     </Button>
                   </div>
                 ))}
@@ -238,32 +280,80 @@ const TechnicianDashboard: React.FC = () => {
         </Card>
       </div>
 
-      {/* Validation Dialog */}
-      <Dialog open={showValidation} onOpenChange={setShowValidation}>
-        <DialogContent>
+      {/* Management Dialog */}
+      <Dialog open={showManagement} onOpenChange={handleCloseManagement}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Validar Entrega de Préstamo</DialogTitle>
+            <DialogTitle>Gestionar Préstamo</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <div className="p-4 bg-muted mb-4 rounded-md text-sm text-muted-foreground">
-              Solicita al estudiante el <strong>código QR</strong> o el código de texto que aparece en su solicitud.
+          <div className="py-4 space-y-4">
+            <div className="flex space-x-2">
+              <Input
+                placeholder="Código (Ej: A1B2C3D4)"
+                value={managementCode}
+                onChange={(e) => setManagementCode(e.target.value.toUpperCase())}
+                maxLength={8}
+                className="font-mono uppercase"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Button onClick={handleSearch} disabled={searching || !managementCode}>
+                {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
+              </Button>
             </div>
-            <p className="text-sm font-medium mb-2">Código del Préstamo:</p>
-            <Input
-              placeholder="Ej: A1B2C3D4"
-              value={validationCode}
-              onChange={(e) => setValidationCode(e.target.value.toUpperCase())}
-              maxLength={8}
-              className="text-center font-mono text-lg tracking-widest uppercase"
-            />
+
+            {foundLoan && (
+              <div className="bg-muted/50 p-4 rounded-lg space-y-3 border">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Estudiante</p>
+                  <p className="font-medium">{foundLoan.userId?.name}</p>
+                  <p className="text-sm text-muted-foreground">{foundLoan.userId?.email}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Dispositivo</p>
+                    <p className="font-medium">{foundLoan.idDispositivo?.name}</p>
+                    <Badge variant="outline">{foundLoan.idDispositivo?.type}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Estado</p>
+                    <Badge
+                      variant={
+                        foundLoan.status === 'ACTIVO' ? 'default' :
+                          foundLoan.status === 'PENDIENTE_ENTREGA' ? 'secondary' :
+                            foundLoan.status === 'MORA' ? 'destructive' : 'outline'
+                      }
+                    >
+                      {foundLoan.status}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {foundLoan && (
+              <div className="flex justify-end gap-2 pt-2">
+                {foundLoan.status === 'PENDIENTE_ENTREGA' && (
+                  <Button onClick={handleDeliver} disabled={processing} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white">
+                    {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Entregar Dispositivo
+                  </Button>
+                )}
+
+                {(foundLoan.status === 'ACTIVO' || foundLoan.status === 'MORA') && (
+                  <Button onClick={handleFinalize} disabled={processing} className="w-full" variant="default">
+                    {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Finalizar Préstamo (Devolución)
+                  </Button>
+                )}
+
+                {(foundLoan.status === 'FINALIZADO' || foundLoan.status === 'CANCELADO') && (
+                  <p className="text-center w-full text-muted-foreground italic text-sm">
+                    Este préstamo ya ha finalizado.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowValidation(false)}>Cancelar</Button>
-            <Button onClick={handleValidate} disabled={validating}>
-              {validating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Validar Entrega
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 

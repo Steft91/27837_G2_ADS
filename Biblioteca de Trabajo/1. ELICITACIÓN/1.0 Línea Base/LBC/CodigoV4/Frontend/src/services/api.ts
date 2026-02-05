@@ -115,6 +115,21 @@ export const api = {
         return handleResponse(res);
     },
 
+    getPrestamoByCode: async (code: string) => {
+        const res = await fetch(`${BASE_URL}/prestamos/code/${code}`, {
+            headers: getHeaders(),
+        });
+        return handleResponse<Loan>(res);
+    },
+
+    finalizePrestamo: async (id: string) => {
+        const res = await fetch(`${BASE_URL}/prestamos/finalize/${id}`, {
+            method: 'POST',
+            headers: getHeaders(),
+        });
+        return handleResponse(res);
+    },
+
     getPrestamos: async () => {
         const res = await fetch(`${BASE_URL}/prestamos`, {
             headers: getHeaders(),

@@ -123,12 +123,6 @@ const PrestamosPage: React.FC = () => {
             <Loader2 className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Actualizar
           </Button>
-          {(user?.role === 'tecnico' || user?.role === 'admin') && (
-            <Button variant="default" size="sm" onClick={() => setShowValidation(true)} className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
-              <CheckCircle2 className="h-4 w-4" />
-              Validar Préstamo
-            </Button>
-          )}
         </div>
 
         {/* Filters Bar */}

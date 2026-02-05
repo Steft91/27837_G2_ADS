@@ -187,5 +187,57 @@ module.exports = {
       await Dispositivo.findByIdAndUpdate(prestamoActualizado.idDispositivo, { status: 'Disponible' });
     }
     return prestamoActualizado;
+  },
+
+  async findByLoanCode(code) {
+    const prestamo = await Prestamo.findOne({ code })
+      .populate({ path: 'userId', model: 'Estudiante', select: 'name email career' })
+      .populate('idDispositivo');
+
+    if (!prestamo) {
+      throw new Error('Préstamo no encontrado con ese código');
+    }
+    return prestamo;
+  },
+
+  async finalize(id) {
+    // 1. Obtener el préstamo
+    const prestamo = await Prestamo.findById(id);
+    if (!prestamo) {
+      throw new Error('Préstamo no encontrado');
+    }
+
+    // 2. Validar que no esté ya finalizado o cancelado
+    if (prestamo.status === 'FINALIZADO' || prestamo.status === 'CANCELADO') {
+      throw new Error('El préstamo ya está finalizado o cancelado');
+    }
+
+    // 3. Iniciar sesión para transacción
+    const session = await mongoose.startSession();
+    let prestamoActualizado;
+
+    try {
+      await session.withTransaction(async () => {
+        // 4. Actualizar estado del préstamo a FINALIZADO
+        prestamoActualizado = await Prestamo.findByIdAndUpdate(
+          id,
+          { status: 'FINALIZADO' },
+          { new: true, session }
+        );
+
+        // 5. Liberar el dispositivo
+        if (prestamo.idDispositivo) {
+          await Dispositivo.findByIdAndUpdate(
+            prestamo.idDispositivo,
+            { status: 'Disponible' },
+            { session }
+          );
+        }
+      });
+    } finally {
+      await session.endSession();
+    }
+
+    return prestamoActualizado;
   }
 };

@@ -201,6 +201,85 @@ router.post('/validate', auth, authorize(['TECNICO', 'ADMIN']), async (req, res)
   }
 });
 
+
+/**
+ * @swagger
+ * /api/prestamos/code/{code}:
+ *   get:
+ *     summary: Obtener préstamo por código (Técnico)
+ *     tags: [Préstamos]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Código único del préstamo
+ *     responses:
+ *       200:
+ *         description: Préstamo encontrado
+ *       404:
+ *         description: No encontrado
+ */
+router.get('/code/:code', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
+  try {
+    const { code } = req.params;
+    const prestamo = await service.findByLoanCode(code);
+    res.json({
+      status: 'success',
+      message: 'Préstamo encontrado',
+      content: prestamo
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/prestamos/finalize/{id}:
+ *   post:
+ *     summary: Finalizar préstamo (Devolución)
+ *     tags: [Préstamos]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del préstamo
+ *     responses:
+ *       200:
+ *         description: Préstamo finalizado correctamente
+ *       400:
+ *         description: Error al finalizar
+ */
+router.post('/finalize/:id', auth, authorize(['TECNICO', 'ADMIN']), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const prestamo = await service.finalize(id);
+    res.json({
+      status: 'success',
+      message: 'Préstamo finalizado correctamente',
+      content: prestamo
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'error',
+      message: err.message,
+      content: null
+    });
+  }
+});
+
 /**
  * @swagger
  * /api/prestamos:
