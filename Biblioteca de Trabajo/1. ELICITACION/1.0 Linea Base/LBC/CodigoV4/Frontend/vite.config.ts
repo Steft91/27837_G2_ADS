@@ -6,7 +6,8 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     allowedHosts: [
-      "two7837-g2-ads.onrender.com"
+      "two7837-g2-ads.onrender.com",
+      "miprestamoespe.onrender.com"
     ],
     host: "::",
     port: 8080,
