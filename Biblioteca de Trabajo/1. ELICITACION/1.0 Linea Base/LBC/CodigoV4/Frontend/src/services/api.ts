@@ -1,7 +1,7 @@
 
 import { User, UserRole, DeviceDisponibility, Loan, Equipment } from '@/types';
 
-const BASE_URL = 'http://localhost:3001/api';
+const BASE_URL = 'https://two7837-g2-ads-1.onrender.com/api';
 
 export interface ApiResponse<T = any> {
     status: string;
