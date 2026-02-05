@@ -18,6 +18,9 @@ const allowedOrigins = [
   'http://localhost:5173'      
 ];
 
+
+const app = express();
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
@@ -31,7 +34,6 @@ app.use(cors({
   credentials: true
 }));
 
-const app = express();
 app.use(express.json());
 
 // 🔥 Conectar a MongoDB ANTES de usar rutas
