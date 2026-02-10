@@ -1,4 +1,4 @@
-# 📌 Líneas Base del Proyecto - VERSIÓN FINAL DE SOPORTE
+# 📌 Líneas Base del Proyecto - VERSIÓN FINAL
 ## Sistema de Gestión de Préstamos de Dispositivos Institucionales – ESPE
 
 Las líneas base representan puntos de referencia formales en la evolución del proyecto, conteniendo versiones aprobadas de los artefactos de configuración generados durante el desarrollo del sistema de gestión de préstamos de dispositivos institucionales para la Universidad de las Fuerzas Armadas ESPE.
