@@ -32,7 +32,9 @@ Este artefacto permite gestionar de forma clara y estructurada las funcionalidad
 | V1.0 | 08/12/2025 | Versión inicial del backlog con primeras historias de usuario | Equipo G4 |
 | V2.0 | 09/12/2025 | Repriorización de ítems y ajuste de estimaciones | Equipo G4 |
 | V3.0 | 17/12/2025 | Inclusión de nuevas historias de usuario y actualización de sprints | Equipo G4 |
-| V4.0 | 05/01/2026 | Actualización final del backlog con todas las historias y estado actual | Equipo G4 |
+| V4.0 | 05/01/2026 | Actualización del backlog con todas las historias | Equipo G4 |
+| V5.0 | 11/02/2026 | Ajuste del sprint 2 del backlog  | Equipo G4 |
+| V6.0 | 11/02/2026 | Actualización final del backlog con todas las historias y estado actual | Equipo G4 |
 
 ---
 
@@ -40,10 +42,12 @@ Este artefacto permite gestionar de forma clara y estructurada las funcionalidad
 
 | Archivo | Versión | Descripción |
 |---------|--------|-------------|
-| G4_27835_Backlog_ADS_V1.0.xlsx | V1.0 | Versión inicial del backlog |
-| G4_27835_Backlog_ADS_V2.0.xlsx | V2.0 | Repriorización y ajuste de estimaciones |
-| G4_27835_Backlog_ADS_V3.0.xlsx | V3.0 | Inclusión de nuevas historias y asignación a sprints |
-| G4_27835_Backlog_ADS_V4.0.xlsx | V4.0 | Versión final del backlog actualizada |
+| G2_Backlog_V1.0.xlsx | V1.0 | Versión inicial del backlog |
+| G2_Backlog_V2.0.xlsx | V2.0 | Repriorización y ajuste de estimaciones |
+| G2_Backlog_V3.0.xlsx | V3.0 | Inclusión de nuevas historias y asignación a sprints |
+| G2_Backlog_V4.0.xlsx | V4.0 | Versión congruente con el sprint 1 |
+| G2_Backlog_V5.0.xlsx | V5.0 | Versión acorde al sprint 2|
+| G2_Backlog_V6.0.xlsx | V6.0 | Versión final del backlog actualizada |
 
 ---
 
