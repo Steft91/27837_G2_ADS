@@ -33,8 +33,8 @@ El **Perfil de Proyecto** define las características generales del proyecto, in
 
 | Versión | Fecha | Descripción del Cambio | Autor |
 |---------|------|----------------------|-------|
-| V1.0 | 12/01/2026 | Versión inicial del Perfil de Proyecto adaptada al sistema de préstamo | Equipo G4 |
-| V2.0 | 12/01/2026 | Actualización y correcciones finales del perfil | Equipo G4 |
+| V1 | 12/01/2026 | Versión inicial del Perfil de Proyecto adaptada al sistema de préstamo | Equipo G4 |
+| V2 | 12/01/2026 | Actualización y correcciones finales del perfil | Equipo G4 |
 
 ---
 
@@ -42,8 +42,8 @@ El **Perfil de Proyecto** define las características generales del proyecto, in
 
 | Archivo | Versión | Descripción |
 |---------|--------|-------------|
-| G4_27835_Perfil_Proyecto_ADS_v1.0.pdf | V1.0 | Versión inicial del Perfil de Proyecto |
-| G4_27835_Perfil_Proyecto_ADS_v2.0.pdf | V2.0 | Versión actualizada y corregida del Perfil de Proyecto |
+| G4_27835_Perfil_Proyecto_ADS_v1.pdf | V1 | Versión inicial del Perfil de Proyecto |
+| G4_27835_Perfil_Proyecto_ADS_v2.pdf | V2 | Versión actualizada y corregida del Perfil de Proyecto |
 
 ---
 
