@@ -1,4 +1,4 @@
-# 📄 Perfil de Proyecto
+# 📄 Perfil de Proyecto - VERSIÓN FINAL
 
 Documentación del perfil de proyecto del **Sistema de Préstamo de Dispositivos Audiovisuales**.
 
@@ -33,8 +33,9 @@ El **Perfil de Proyecto** define las características generales del proyecto, in
 
 | Versión | Fecha | Descripción del Cambio | Autor |
 |---------|------|----------------------|-------|
-| V1 | 12/01/2026 | Versión inicial del Perfil de Proyecto adaptada al sistema de préstamo | Equipo G4 |
-| V2 | 12/01/2026 | Actualización y correcciones finales del perfil | Equipo G4 |
+| V1.0 | 11/12/2025 | Versión inicial del Perfil de Proyecto adaptada al sistema de préstamo | Equipo G4 |
+| V2.0 | 12/01/2026 | Actualización y correcciones finales del perfil | Equipo G4 |
+| V3.0 | 10/02/2026 | Actualización de objetivos | Equipo G4 |
 
 ---
 
@@ -42,26 +43,27 @@ El **Perfil de Proyecto** define las características generales del proyecto, in
 
 | Archivo | Versión | Descripción |
 |---------|--------|-------------|
-| G4_27835_Perfil_Proyecto_ADS_v1.pdf | V1 | Versión inicial del Perfil de Proyecto |
-| G4_27835_Perfil_Proyecto_ADS_v2.pdf | V2 | Versión actualizada y corregida del Perfil de Proyecto |
+| G4_27835_Perfil_Proyecto_ADS_v1.0.pdf | V1.0 | Versión inicial del Perfil de Proyecto |
+| G4_27835_Perfil_Proyecto_ADS_v2.0.pdf | V2.0 | Versión actualizada y corregida del Perfil de Proyecto |
+| G4_27835_Perfil_Proyecto_ADS_v3.0.pdf | V3.0 | Versión actualizada y corregida del Perfil de Proyecto |
 
 ---
 
 ## ⚙️ Control de Configuración
 
 - **Verificado por:** Moisés Benalcazar (👤 Gestor de Configuración)  
-- **Fecha de verificación:** 12/01/2026  
+- **Fecha de verificación:** 10/02/2026  
 - **Estado:** Perfil de proyecto conforme a estándares  
 - **Aprobado por Comité:** ✅ Sí  
-- **Fecha de aprobación:** 12/01/2026  
+- **Fecha de aprobación:** 11/02/2026  
 
 ---
 
 ## 🧪 Auditoría de Calidad (SQA)
 
 - **Auditado por:** Mateo Medranda (🔍 Responsable SQA)  
-- **Fecha de auditoría:** 12/01/2026  
+- **Fecha de auditoría:** 11/02/2026  
 - **Cumplimiento de estándares:** ✅ Cumple  
 - **Observaciones:** Perfil completo con alcance definido y objetivos claros  
 - **Revisión final:** 🟢 Aprobado  
-- **Fecha revisión final:** 12/01/2026  
+- **Fecha revisión final:** 11/02/2026  
